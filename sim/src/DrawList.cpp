@@ -14,7 +14,11 @@ void DrawList::loadFiles() {
       "c3_upper_link.obj",   "c3_lower_link.obj",
       "mini_body.obj",       "mini_abad.obj",
       "mini_upper_link.obj", "mini_lower_link.obj",
-      "sphere.obj",          "cube.obj"};
+      "sphere.obj",          "cube.obj",
+      "trunk.obj",           "hip.obj",
+      "thigh.obj",
+      "thigh_mirror.obj",
+      "calf.obj"};
   for (const auto& name : names) {
     std::string filename = _baseFileName + name;
     _vertexData.emplace_back();
@@ -38,6 +42,7 @@ void DrawList::loadFiles() {
   _sphereLoadIndex = 8;
   _cubeLoadIndex = 9;
   _miniCheetahLoadIndex = 4;
+  _A1LoadIndex = 10;
   _cheetah3LoadIndex = 0;
 }
 /*!
@@ -221,6 +226,90 @@ size_t DrawList::addMiniCheetah(Vec4<float> color, bool useOld, bool canHide) {
   //   printf(" [%02d] %d\n", i, _canBeHidden[i]);
   // }
   return j0;
+}
+
+size_t DrawList::addA1(Vec4<float> color, bool useOld, bool canHide) {
+    size_t i0 = _A1LoadIndex;  // todo don't hard code this
+    size_t j0 = _nTotal;
+
+    // set model offsets:
+    QMatrix4x4 bodyOffset, upper, lower, eye;
+    QMatrix4x4 abadOffsets[4];
+    eye.setToIdentity();
+
+    // body
+    bodyOffset.setToIdentity();
+
+    // abads (todo, check these)
+    abadOffsets[0].setToIdentity();  // p
+
+    abadOffsets[1].setToIdentity();  // n
+    abadOffsets[1].rotate(180, 1, 0, 0);
+
+    abadOffsets[2].setToIdentity();  // n
+    abadOffsets[2].rotate(180, 0, 1, 0);
+
+    abadOffsets[3].setToIdentity();  // p
+    abadOffsets[3].rotate(180, 1, 0, 0);
+    abadOffsets[3].rotate(180, 0, 1, 0);
+
+
+
+    // upper
+    upper.setToIdentity();
+
+    // lower
+    lower.setToIdentity();
+    lower.rotate(180, 0, 0, 1);
+
+    SolidColor bodyColor, abadColor, link1Color, link2Color;
+    bodyColor.rgba = useOld ? Vec4<float>(0.0, 0.0, 0.0, 1.0) : color;
+    bodyColor.useSolidColor = true;
+
+    abadColor.rgba = useOld ? Vec4<float>(0.2,  0.2,  0.2,  1.0) : color;
+    abadColor.useSolidColor = true;
+
+    link1Color.rgba = useOld ? Vec4<float>(0.2,  0.2,  0.2,  1.0) : color;
+    link1Color.useSolidColor = true;
+
+    link2Color.rgba = useOld ? Vec4<float>(0.2,  0.2,  0.2,  1.0) : color;
+    link2Color.useSolidColor = true;
+
+    _canBeHidden.push_back(canHide);
+
+    // add objects
+    _objectMap.push_back(i0 + 0);
+    _modelOffsets.push_back(bodyOffset);
+    _kinematicXform.push_back(eye);
+    _instanceColor.push_back(bodyColor);
+    _nTotal++;
+
+    for (int i = 0; i < 4; i++) {
+        _objectMap.push_back(i0 + 1);
+        _canBeHidden.push_back(canHide);
+        _modelOffsets.push_back(abadOffsets[i]);
+        _kinematicXform.push_back(eye);
+        _instanceColor.push_back(abadColor);
+
+        _objectMap.push_back(i0 + 2 + (i % 2));
+        _canBeHidden.push_back(canHide);
+        _modelOffsets.push_back(upper);
+        _kinematicXform.push_back(eye);
+        _instanceColor.push_back(link1Color);
+
+        _objectMap.push_back(i0 + 4);
+        _canBeHidden.push_back(canHide);
+        _modelOffsets.push_back(lower);
+        _kinematicXform.push_back(eye);
+        _instanceColor.push_back(link2Color);
+        _nTotal += 3;
+    }
+
+    // printf("add mini cheetah (%d) id %ld\n", (int)canHide, j0);
+    // for(u32 i = 0; i < _canBeHidden.size(); i++) {
+    //   printf(" [%02d] %d\n", i, _canBeHidden[i]);
+    // }
+    return j0;
 }
 
 /*!

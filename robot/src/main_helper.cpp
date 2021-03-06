@@ -36,11 +36,17 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
     printUsage();
     return EXIT_FAILURE;
   }
+  std::string Robotname;
 
   if (argv[1][0] == '3') {
     gMasterConfig._robot = RobotType::CHEETAH_3;
+    Robotname = "Cheetah 3";
   } else if (argv[1][0] == 'm') {
     gMasterConfig._robot = RobotType::MINI_CHEETAH;
+    Robotname = "Mini Cheetah";
+  } else if (argv[1][0] == 'a') {
+      gMasterConfig._robot = RobotType::A1;
+      Robotname = "A1";
   } else {
     printUsage();
     return EXIT_FAILURE;
@@ -65,8 +71,7 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
 
   printf("[Quadruped] Cheetah Software\n");
   printf("        Quadruped:  %s\n",
-         gMasterConfig._robot == RobotType::MINI_CHEETAH ? "Mini Cheetah"
-                                                         : "Cheetah 3");
+         Robotname.c_str());
   printf("        Driver: %s\n", gMasterConfig.simulated
                                      ? "Development Simulation Driver"
                                      : "Quadruped Driver");
@@ -84,6 +89,9 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
     } else if (gMasterConfig._robot == RobotType::CHEETAH_3) {
       SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
       simulationBridge.run();
+    } else if (gMasterConfig._robot == RobotType::A1) {
+        SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
+        simulationBridge.run();
     } else {
       printf("[ERROR] unknown robot\n");
       assert(false);
