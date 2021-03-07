@@ -1,4 +1,4 @@
-## Cheetah-Software
+## Cheetah-Software (A1 included)
 This repository contains the Robot and Simulation software project.  For a getting started guide, see the documentation folder.
 
 The common folder contains the common library with dynamics and utilities
@@ -48,7 +48,7 @@ Example)
 ```
 ./user/JPos_Controller/jpos_ctrl 3 s
 ```
-3: Cheetah 3, m: Mini Cheetah
+3: Cheetah 3, m: Mini Cheetah, a: A1
 s: simulation, r: robot
 
 ## Run Mini cheetah
