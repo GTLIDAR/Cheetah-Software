@@ -33,10 +33,13 @@ FSM_State<T>::FSM_State(ControlFSMData<T>* _controlFSMData,
 template <typename T>
 void FSM_State<T>::jointPDControl(
     int leg, Vec3<T> qDes, Vec3<T> qdDes) {
-
-  kpMat << 80, 0, 0, 0, 80, 0, 0, 0, 80;
-  kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
-
+    if (_data->_quadruped->_robotType == RobotType::MINI_CHEETAH){
+    kpMat << 80, 0, 0, 0, 80, 0, 0, 0, 80;
+    kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+    }else if(_data->_quadruped->_robotType == RobotType::A1) {
+    kpMat << 200, 0, 0, 0, 200, 0, 0, 0, 200;
+    kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+    }
   _data->_legController->commands[leg].kpJoint = kpMat;
   _data->_legController->commands[leg].kdJoint = kdMat;
 

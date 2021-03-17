@@ -263,16 +263,16 @@ size_t DrawList::addA1(Vec4<float> color, bool useOld, bool canHide) {
     lower.rotate(180, 0, 0, 1);
 
     SolidColor bodyColor, abadColor, link1Color, link2Color;
-    bodyColor.rgba = useOld ? Vec4<float>(0.0, 0.0, 0.0, 1.0) : color;
+    bodyColor.rgba = useOld ? Vec4<float>(0.0, 0.0, 0.0, 0.3) : color;
     bodyColor.useSolidColor = true;
 
-    abadColor.rgba = useOld ? Vec4<float>(0.2,  0.2,  0.2,  1.0) : color;
+    abadColor.rgba = useOld ? Vec4<float>(0.2,  0.2,  0.2,  0.3) : color;
     abadColor.useSolidColor = true;
 
-    link1Color.rgba = useOld ? Vec4<float>(0.2,  0.2,  0.2,  1.0) : color;
+    link1Color.rgba = useOld ? Vec4<float>(0.2,  0.2,  0.2,  0.3) : color;
     link1Color.useSolidColor = true;
 
-    link2Color.rgba = useOld ? Vec4<float>(0.2,  0.2,  0.2,  1.0) : color;
+    link2Color.rgba = useOld ? Vec4<float>(0.2,  0.2,  0.2,  0.3) : color;
     link2Color.useSolidColor = true;
 
     _canBeHidden.push_back(canHide);
