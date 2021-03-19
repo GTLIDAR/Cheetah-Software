@@ -16,8 +16,8 @@ void DrawList::loadFiles() {
       "mini_upper_link.obj", "mini_lower_link.obj",
       "sphere.obj",          "cube.obj",
       "trunk.obj",           "hip.obj",
-      "thigh.obj",
       "thigh_mirror.obj",
+      "thigh.obj",
       "calf.obj"};
   for (const auto& name : names) {
     std::string filename = _baseFileName + name;
@@ -257,6 +257,7 @@ size_t DrawList::addA1(Vec4<float> color, bool useOld, bool canHide) {
 
     // upper
     upper.setToIdentity();
+    upper.rotate(180, 0, 0, 1);
 
     // lower
     lower.setToIdentity();
