@@ -18,7 +18,7 @@ include_directories("../third-party/SOEM/oshw/linux")
 
 file(GLOB sources "src/*.cpp" "src/rt/*.c"  "src/rt/*.cpp")
 
-add_library(robot SHARED ${sources})
+add_library(robot SHARED ${sources} include/A1hardwareBridge.h)
 
 target_link_libraries(robot biomimetics pthread lcm inih dynacore_param_handler lord_imu soem)
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
