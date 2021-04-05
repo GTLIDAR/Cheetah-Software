@@ -10,11 +10,17 @@ include_directories("/usr/local/include/eigen3")   # lcm includes
 include_directories("FootstepPlanner")
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${PROJECT_SOURCE_DIR})
+include_directories($ENV{UNITREE_LEGGED_SDK_PATH}/include
+        $ENV{ALIENGO_SDK_PATH}/include)
+link_directories($ENV{UNITREE_LEGGED_SDK_PATH}/lib)
+link_directories($ENV{ALIENGO_SDK_PATH}/lib)
+string(CONCAT LEGGED_SDK_NAME libunitree_legged_sdk_$ENV{UNITREE_PLATFORM}.so)
+set(EXTRA_LIBS ${LEGGED_SDK_NAME} libaliengo_comm.so)
 file(GLOB_RECURSE sources "src/*.cpp")                   # common library cpp files
 
 # Library
 add_library(biomimetics SHARED ${sources})       # produce a library used by sim/robot
-target_link_libraries(biomimetics inih dynacore_param_handler JCQP osqp)
+target_link_libraries(biomimetics inih dynacore_param_handler JCQP osqp ${EXTRA_LIBS})
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
 # Pull in Google Test
@@ -41,7 +47,7 @@ endif()
 # Test
 file(GLOB_RECURSE test_sources "test/test_*.cpp")             # test cpp files
 add_executable(test-common ${test_sources})
-target_link_libraries(test-common gtest gmock_main lcm rt inih osqp dynacore_param_handler pthread biomimetics)
+target_link_libraries(test-common gtest gmock_main lcm rt inih osqp dynacore_param_handler pthread biomimetics ${EXTRA_LIBS})
 target_link_libraries(test-common Goldfarb_Optimizer)
 target_link_libraries(test-common JCQP)
 

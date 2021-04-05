@@ -248,6 +248,81 @@ void LegController<T>::setLcm(leg_control_data_lcmt *lcmData, leg_control_comman
     }
 }
 
+/*!
+ * Update the "leg command" for the unitree command type
+ */
+template<typename T>
+void LegController<T>::updateCommand(UNITREE_LEGGED_SDK::LowCmd* a1Command) {
+    for (int leg = 0; leg < 4; leg++) {
+        // tauFF
+        Vec3<T> legTorque = commands[leg].tauFeedForward;
+
+        // forceFF
+        Vec3<T> footForce = commands[leg].forceFeedForward;
+
+        // cartesian PD
+        footForce +=
+                commands[leg].kpCartesian * (commands[leg].pDes - datas[leg].p);
+        footForce +=
+                commands[leg].kdCartesian * (commands[leg].vDes - datas[leg].v);
+
+        // Torque
+        legTorque += datas[leg].J.transpose() * footForce;
+
+        // set command:
+        a1Command->motorCmd[leg*3].tau = legTorque(0);
+        a1Command->motorCmd[leg*3+1].tau = legTorque(1);
+        a1Command->motorCmd[leg*3+2].tau = legTorque(2);
+
+        // joint space PD
+        a1Command->motorCmd[leg*3].Kd = commands[leg].kdJoint(0, 0);
+        a1Command->motorCmd[leg*3+1].Kd = commands[leg].kdJoint(1, 1);
+        a1Command->motorCmd[leg*3+2].Kd = commands[leg].kdJoint(2, 2);
+
+        a1Command->motorCmd[leg*3].Kp = commands[leg].kpJoint(0, 0);
+        a1Command->motorCmd[leg*3+1].Kp = commands[leg].kpJoint(1, 1);
+        a1Command->motorCmd[leg*3+2].Kp = commands[leg].kpJoint(2, 2);
+
+        a1Command->motorCmd[leg*3].q = commands[leg].qDes(0);
+        a1Command->motorCmd[leg*3+1].q = commands[leg].qDes(1);
+        a1Command->motorCmd[leg*3+2].q = commands[leg].qDes(2);
+
+        a1Command->motorCmd[leg*3].dq = commands[leg].qdDes(0);
+        a1Command->motorCmd[leg*3+1].dq = commands[leg].qdDes(1);
+        a1Command->motorCmd[leg*3+2].dq = commands[leg].qdDes(2);
+
+
+        // estimate torque
+        datas[leg].tauEstimate =
+                legTorque +
+                commands[leg].kpJoint * (commands[leg].qDes - datas[leg].q) +
+                commands[leg].kdJoint * (commands[leg].qdDes - datas[leg].qd);
+
+    }
+}
+
+template<typename T>
+void LegController<T>::updateData(const UNITREE_LEGGED_SDK::LowState* a1State) {
+    for (int leg = 0; leg < 4; leg++) {
+        // q:
+        datas[leg].q(0) = a1State->motorState[leg*3].q;
+        datas[leg].q(1) = a1State->motorState[leg*3+1].q;
+        datas[leg].q(2) = a1State->motorState[leg*3+2].q;
+
+        // qd
+        datas[leg].qd(0) = a1State->motorState[leg*3].dq;
+        datas[leg].qd(1) = a1State->motorState[leg*3+1].dq;
+        datas[leg].qd(2) = a1State->motorState[leg*3+2].dq;
+
+        // J and p
+        computeLegJacobianAndPosition<T>(_quadruped, datas[leg].q, &(datas[leg].J),
+                                         &(datas[leg].p), leg);
+
+        // v
+        datas[leg].v = datas[leg].J * datas[leg].qd;
+    }
+}
+
 template struct LegControllerCommand<double>;
 template struct LegControllerCommand<float>;
 

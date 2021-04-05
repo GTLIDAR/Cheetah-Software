@@ -12,6 +12,12 @@ include_directories("/usr/local/include/lcm/")   # lcm includes
 include_directories("/usr/local/include/eigen3")   # lcm includes
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${PROJECT_SOURCE_DIR})
+include_directories($ENV{UNITREE_LEGGED_SDK_PATH}/include
+        $ENV{ALIENGO_SDK_PATH}/include)
+link_directories($ENV{UNITREE_LEGGED_SDK_PATH}/lib)
+link_directories($ENV{ALIENGO_SDK_PATH}/lib)
+string(CONCAT LEGGED_SDK_NAME libunitree_legged_sdk_$ENV{UNITREE_PLATFORM}.so)
+set(EXTRA_LIBS ${LEGGED_SDK_NAME} libaliengo_comm.so)
 
 file(GLOB_RECURSE sources
 "./*.cpp"

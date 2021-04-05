@@ -176,6 +176,7 @@ Simulation::Simulation(RobotType robot, Graphics3D* window,
 
   printf("[Simulation] Setup low-level control...\n");
   // init spine:
+  // TODO: change to A1's struct
   if (_robot == RobotType::MINI_CHEETAH || _robot == RobotType::A1) {
     for (int leg = 0; leg < 4; leg++) {
       _spineBoards[leg].init(Quadruped<float>::getSideSign(leg), leg);
@@ -211,9 +212,13 @@ Simulation::Simulation(RobotType robot, Graphics3D* window,
 
   // load robot control parameters
   printf("[Simulation] Load control parameters...\n");
-  if (_robot == RobotType::MINI_CHEETAH || _robot == RobotType::A1) {
+  if (_robot == RobotType::MINI_CHEETAH) {
     _robotParams.initializeFromYamlFile(getConfigDirectoryPath() +
                                         MINI_CHEETAH_DEFAULT_PARAMETERS);
+
+  } else if (_robot == RobotType::A1) {
+      _robotParams.initializeFromYamlFile(getConfigDirectoryPath() +
+                                          A1_DEFAULT_PARAMETERS);
   } else if (_robot == RobotType::CHEETAH_3) {
     _robotParams.initializeFromYamlFile(getConfigDirectoryPath() +
                                         CHEETAH_3_DEFAULT_PARAMETERS);
@@ -359,6 +364,7 @@ void Simulation::step(double dt, double dtLowLevelControl,
   }
 
   // actuator model:
+  // TODO: change to A1's struct
   if (_robot == RobotType::MINI_CHEETAH || _robot == RobotType::A1) {
     for (int leg = 0; leg < 4; leg++) {
       for (int joint = 0; joint < 3; joint++) {
@@ -397,6 +403,7 @@ void Simulation::step(double dt, double dtLowLevelControl,
 }
 
 void Simulation::lowLevelControl() {
+    // TODO: change to A1's struct
   if (_robot == RobotType::MINI_CHEETAH || _robot == RobotType::A1) {
     // update spine board data:
     for (int leg = 0; leg < 4; leg++) {
@@ -453,6 +460,7 @@ void Simulation::highLevelControl() {
 
 
   // send leg data to robot
+    // TODO: change to A1's struct
   if (_robot == RobotType::MINI_CHEETAH || _robot == RobotType::A1) {
     _sharedMemory().simToRobot.spiData = _spiData;
   } else if (_robot == RobotType::CHEETAH_3) {
@@ -489,6 +497,7 @@ void Simulation::highLevelControl() {
   _robotMutex.unlock();
 
   // update
+    // TODO: change to A1's struct
   if (_robot == RobotType::MINI_CHEETAH || _robot == RobotType::A1) {
     _spiCommand = _sharedMemory().robotToSim.spiCommand;
 

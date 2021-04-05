@@ -17,6 +17,7 @@
 #include "Dynamics/Quadruped.h"
 #include "SimUtilities/SpineBoard.h"
 #include "SimUtilities/ti_boardcontrol.h"
+#include <unitree_legged_sdk/unitree_legged_sdk.h>
 
 /*!
  * Data sent from the control algorithm to the legs.
@@ -64,7 +65,9 @@ class LegController {
   void edampCommand(RobotType robot, T gain);
   void updateData(const SpiData* spiData);
   void updateData(const TiBoardData* tiBoardData);
+  void updateData(const UNITREE_LEGGED_SDK::LowState* a1State);
   void updateCommand(SpiCommand* spiCommand);
+  void updateCommand(UNITREE_LEGGED_SDK::LowCmd* a1Command);
   void updateCommand(TiBoardCommand* tiBoardCommand);
   void setEnabled(bool enabled) { _legsEnabled = enabled; };
   void setLcm(leg_control_data_lcmt* data, leg_control_command_lcmt* command);

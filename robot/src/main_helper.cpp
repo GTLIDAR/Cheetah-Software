@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "HardwareBridge.h"
+#include "A1hardwareBridge.h"
 #include "SimulationBridge.h"
 #include "main_helper.h"
 #include "RobotController.h"
@@ -106,7 +107,10 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
       Cheetah3HardwareBridge hw(ctrl);
       hw.run();
     } else if (gMasterConfig._robot == RobotType::A1) {
-
+        UNITREE_LEGGED_SDK::InitEnvironment();
+        UNITREE_LEGGED_SDK::LCM a1_lcm(UNITREE_LEGGED_SDK::LOWLEVEL);
+        A1hardwareBridge hw(ctrl, a1_lcm, gMasterConfig.load_from_file);
+        hw.run();
     } else {
       printf("[ERROR] unknown robot\n");
       assert(false);

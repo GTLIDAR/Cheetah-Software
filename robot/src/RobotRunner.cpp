@@ -174,7 +174,7 @@ void RobotRunner::setupStep() {
   if (robotType == RobotType::MINI_CHEETAH) {
     _legController->updateData(spiData);
   } else if (robotType == RobotType::A1) {
-    _legController->updateData(spiData);
+    _legController->updateData(a1Data);
   } else if (robotType == RobotType::CHEETAH_3) {
     _legController->updateData(tiBoardData);
   } else {
@@ -215,7 +215,7 @@ void RobotRunner::finalizeStep() {
   if (robotType == RobotType::MINI_CHEETAH) {
     _legController->updateCommand(spiCommand);
   } else if (robotType == RobotType::A1) {
-        _legController->updateCommand(spiCommand);
+      _legController->updateCommand(a1Command);
   } else if (robotType == RobotType::CHEETAH_3) {
     _legController->updateCommand(tiBoardCommand);
   } else {
@@ -226,6 +226,7 @@ void RobotRunner::finalizeStep() {
   _lcm.publish("leg_control_command", &leg_control_command_lcm);
   _lcm.publish("leg_control_data", &leg_control_data_lcm);
   _lcm.publish("state_estimator", &state_estimator_lcm);
+  // TODO: Add UNITREE_LEGGED_SDK::LCM publish (Done inside @A1hardwareBridge::runUnitreeLCM())
   _iterations++;
 }
 

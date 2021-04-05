@@ -26,6 +26,7 @@
 #include "state_estimator_lcmt.hpp"
 #include "RobotController.h"
 #include <lcm-cpp.hpp>
+#include <unitree_legged_sdk/unitree_legged_sdk.h>
 
 class RobotRunner : public PeriodicTask {
  public:
@@ -49,6 +50,8 @@ class RobotRunner : public PeriodicTask {
   CheaterState<double>* cheaterState;
   SpiData* spiData;
   SpiCommand* spiCommand;
+  UNITREE_LEGGED_SDK::LowState* a1Data;
+  UNITREE_LEGGED_SDK::LowCmd* a1Command;
   TiBoardCommand* tiBoardCommand;
   TiBoardData* tiBoardData;
   RobotControlParameters* controlParameters;

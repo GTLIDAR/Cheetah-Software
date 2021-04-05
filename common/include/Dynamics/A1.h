@@ -32,7 +32,7 @@ Quadruped<T> buildA1() {
     a1._hipLinkLength = 0.2;
     a1._kneeLinkY_offset = 0.0;
     a1._kneeLinkLength = 0.2;
-    a1._maxLegLength = 0.4;
+    a1._maxLegLength = 0.4; // safety check
 
 
     a1._motorTauMax = 33.5f;
