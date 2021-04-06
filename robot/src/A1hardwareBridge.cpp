@@ -227,7 +227,6 @@ void A1hardwareBridge::initHardware() {
     std::cout << "WARNING: Control level is set to LOW-level." << std::endl
               << "Make sure the robot is hung up." << std::endl
               << "Press Enter to continue..." << std::endl;
-    std::cin.ignore();
 }
 
 void A1hardwareBridge::run() {

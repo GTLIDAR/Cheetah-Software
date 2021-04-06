@@ -11,6 +11,8 @@
 #ifndef CHEETAH_SOFTWARE_A1HARDWAREBRIDGE_H
 #define CHEETAH_SOFTWARE_A1HARDWAREBRIDGE_H
 
+#ifdef linux
+
 #define MAX_STACK_SIZE 16384  // 16KB  of stack
 #define TASK_PRIORITY 49      // linux priority, this is not the nice value
 
@@ -33,15 +35,15 @@ using namespace UNITREE_LEGGED_SDK;
  */
 class A1hardwareBridge {
 public:
-    A1hardwareBridge(RobotController *robot_ctrl, UNITREE_LEGGED_SDK::LCM lowLcm, bool load_parameters_from_file)
+    A1hardwareBridge(RobotController *robot_ctrl, uint8_t level, bool load_parameters_from_file)
             : statusTask(&taskManager, 0.5f),
               _interfaceLCM(getLcmUrl(255)),
-              _visualizationLCM(getLcmUrl(255)), _lowLcm(lowLcm) {
+              _visualizationLCM(getLcmUrl(255)), _lowLcm(level) {
         _controller = robot_ctrl;
         _userControlParameters = robot_ctrl->getUserControlParameters();
         _load_parameters_from_file = load_parameters_from_file;
     }
-    ~A1hardwareBridge(){ delete _robotRunner; }
+    ~A1hardwareBridge(){ delete _robotRunner;}
     void prefaultStack();
     void setupScheduler();
     void initError(const char* reason, bool printErrno = false);
@@ -89,5 +91,5 @@ protected:
 
 
 };
-
+#endif // END of #ifdef linux
 #endif //CHEETAH_SOFTWARE_A1HARDWAREBRIDGE_H

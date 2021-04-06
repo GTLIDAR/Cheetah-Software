@@ -9,8 +9,8 @@
 #include <cassert>
 #include <iostream>
 
-#include "HardwareBridge.h"
 #include "A1hardwareBridge.h"
+#include "HardwareBridge.h"
 #include "SimulationBridge.h"
 #include "main_helper.h"
 #include "RobotController.h"
@@ -38,6 +38,7 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
     return EXIT_FAILURE;
   }
   std::string Robotname;
+
 
   if (argv[1][0] == '3') {
     gMasterConfig._robot = RobotType::CHEETAH_3;
@@ -104,13 +105,13 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
       hw.run();
       printf("[Quadruped] SimDriver run() has finished!\n");
     } else if (gMasterConfig._robot == RobotType::CHEETAH_3) {
-      Cheetah3HardwareBridge hw(ctrl);
-      hw.run();
+        printf("[ERROR] CHEETAH_3 not supported\n");
+//      Cheetah3HardwareBridge hw(ctrl);
+//      hw.run();
     } else if (gMasterConfig._robot == RobotType::A1) {
         UNITREE_LEGGED_SDK::InitEnvironment();
-        UNITREE_LEGGED_SDK::LCM a1_lcm(UNITREE_LEGGED_SDK::LOWLEVEL);
-        A1hardwareBridge hw(ctrl, a1_lcm, gMasterConfig.load_from_file);
-        hw.run();
+        A1hardwareBridge hw0(ctrl, UNITREE_LEGGED_SDK::LOWLEVEL, gMasterConfig.load_from_file);
+        hw0.run();
     } else {
       printf("[ERROR] unknown robot\n");
       assert(false);
