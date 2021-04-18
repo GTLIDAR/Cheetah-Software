@@ -19,6 +19,7 @@
  */
 class RobotController{
   friend class RobotRunner;
+  friend class RobotRunner_sim;
 public:
   RobotController(){}
   virtual ~RobotController(){}
