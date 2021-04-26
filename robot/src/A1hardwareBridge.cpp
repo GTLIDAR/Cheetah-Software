@@ -208,6 +208,8 @@ void A1hardwareBridge::LCMRecv()
         pthread_mutex_unlock(&_lowLcm.lowCmdLCMHandler.countMut);
     }
     _lowLcm.Recv();
+//    _lowLcm.Get(_lowState);
+//    std::cout << "low state FR_0 position: " << _lowState.motorState[FR_0].q << std::endl;
 }
 
 /*!
@@ -308,7 +310,12 @@ void A1hardwareBridge::run() {
     _robotRunner->start();
 
     // receive the lcm msgs from lcm_server_low (can also be replaced by PeriodicMemberFunction; requires further evaluations)
-    LoopFunc loop_lcm("LCM_Recv", 0.002, 3, boost::bind(&A1hardwareBridge::LCMRecv, this));
+    PeriodicMemberFunction<A1hardwareBridge> RecUnitreeLCM(
+            &taskManager, .002, "LCM_Recv",
+            &A1hardwareBridge::LCMRecv, this);
+    RecUnitreeLCM.start();
+
+//    LoopFunc loop_lcm("LCM_Recv", 0.002, 3, boost::bind(&A1hardwareBridge::LCMRecv, this));
 
     // send command and receive data through unitree_sdk
     PeriodicMemberFunction<A1hardwareBridge> runUnitreeLCMTask(
@@ -334,7 +341,9 @@ void A1hardwareBridge::run() {
 
 void A1hardwareBridge::runUnitreeLCM() {
     _lowLcm.Get(_lowState);
+    std::cout << "low state FR_0 position: " << _lowState.motorState[FR_0].q << std::endl;
     _lowLcm.Send(_lowCmd);
+//    std::cout << "low cmd level flag: " << _lowCmd.levelFlag << std::endl;
     getIMU();
 }
 

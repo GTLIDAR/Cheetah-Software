@@ -9,7 +9,7 @@ public:
       : ControlParameters("user-parameters"),
         INIT_PARAMETER(tau_ff),
         INIT_PARAMETER(kp),
-        INIT_PARAMETER(kd),
+        INIT_PARAMETER(kd)
       {}
 
   DECLARE_PARAMETER(double, tau_ff);

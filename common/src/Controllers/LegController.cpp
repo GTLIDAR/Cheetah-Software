@@ -291,6 +291,10 @@ void LegController<T>::updateCommand(UNITREE_LEGGED_SDK::LowCmd* a1Command) {
         a1Command->motorCmd[leg*3+1].dq = commands[leg].qdDes(1);
         a1Command->motorCmd[leg*3+2].dq = commands[leg].qdDes(2);
 
+        a1Command->motorCmd[leg*3].mode = 0x0A;
+        a1Command->motorCmd[leg*3+1].mode = 0x0A;
+        a1Command->motorCmd[leg*3+2].mode = 0x0A;
+
 
         // estimate torque
         datas[leg].tauEstimate =
@@ -299,6 +303,7 @@ void LegController<T>::updateCommand(UNITREE_LEGGED_SDK::LowCmd* a1Command) {
                 commands[leg].kdJoint * (commands[leg].qdDes - datas[leg].qd);
 
     }
+    a1Command->levelFlag = 0xff;
 }
 
 template<typename T>
