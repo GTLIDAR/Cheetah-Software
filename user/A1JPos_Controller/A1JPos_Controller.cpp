@@ -30,7 +30,7 @@ void A1JPos_Controller::runController(){
 //    _legController->commands[leg].kpJoint = kpMat;
 //    _legController->commands[leg].kdJoint = kdMat;
 //  }
-    float sin_mid_q[3] = {0.0, 1.2, -2.0};
+    float sin_mid_q[3] = {0.0, 0.8, -1.6};
 
     for(int leg(0); leg<4; ++leg){
         for(int jidx(0); jidx<3; ++jidx){

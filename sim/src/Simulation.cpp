@@ -153,23 +153,42 @@ Simulation::Simulation(RobotType robot, Graphics3D* window,
 
   // Cheetah lies on the ground
   //x0.bodyPosition[2] = -0.45;
-  x0.bodyPosition[2] = 0.05;
-  x0.q[0] = -0.7;
-  x0.q[1] = 1.;
-  x0.q[2] = 2.715;
+  if(_robot == RobotType::A1){
+      x0.bodyPosition[2] = 0.3;
+      x0.q[0] = 0.0;
+      x0.q[1] = 0.8;
+      x0.q[2] = -1.6;
 
-  x0.q[3] = 0.7;
-  x0.q[4] = 1.;
-  x0.q[5] = 2.715;
+      x0.q[3] = 0.0;
+      x0.q[4] = 0.8;
+      x0.q[5] = -1.6;
 
-  x0.q[6] = -0.7;
-  x0.q[7] = -1.0;
-  x0.q[8] = -2.715;
+      x0.q[6] = 0.0;
+      x0.q[7] = 0.8;
+      x0.q[8] = -1.6;
 
-  x0.q[9] = 0.7;
-  x0.q[10] = -1.0;
-  x0.q[11] = -2.715;
+      x0.q[9] = 0.0;
+      x0.q[10] = 0.8;
+      x0.q[11] = -1.6;
 
+  }else {
+      x0.bodyPosition[2] = 0.05;
+      x0.q[0] = -0.7;
+      x0.q[1] = 1.;
+      x0.q[2] = 2.715;
+
+      x0.q[3] = 0.7;
+      x0.q[4] = 1.;
+      x0.q[5] = 2.715;
+
+      x0.q[6] = -0.7;
+      x0.q[7] = -1.0;
+      x0.q[8] = -2.715;
+
+      x0.q[9] = 0.7;
+      x0.q[10] = -1.0;
+      x0.q[11] = -2.715;
+  }
 
   setRobotState(x0);
   _robotDataSimulator->setState(x0);

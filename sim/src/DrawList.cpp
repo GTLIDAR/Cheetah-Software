@@ -242,26 +242,26 @@ size_t DrawList::addA1(Vec4<float> color, bool useOld, bool canHide) {
 
     // abads (todo, check these)
     abadOffsets[0].setToIdentity();  // p
+    abadOffsets[0].rotate(180, 1, 0, 0);
 
     abadOffsets[1].setToIdentity();  // n
-    abadOffsets[1].rotate(180, 1, 0, 0);
 
     abadOffsets[2].setToIdentity();  // n
+    abadOffsets[2].rotate(180, 1, 0, 0);
     abadOffsets[2].rotate(180, 0, 1, 0);
 
     abadOffsets[3].setToIdentity();  // p
-    abadOffsets[3].rotate(180, 1, 0, 0);
     abadOffsets[3].rotate(180, 0, 1, 0);
 
 
 
     // upper
     upper.setToIdentity();
-    upper.rotate(180, 0, 0, 1);
+//    upper.rotate(180, 0, 0, 1);
 
     // lower
     lower.setToIdentity();
-    lower.rotate(180, 0, 0, 1);
+//    lower.rotate(180, 0, 0, 1);
 
     SolidColor bodyColor, abadColor, link1Color, link2Color;
     bodyColor.rgba = useOld ? Vec4<float>(0.0, 0.0, 0.0, 0.3) : color;

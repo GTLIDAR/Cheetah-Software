@@ -59,12 +59,19 @@ bool Quadruped<T>::buildModel(FloatingBaseModel<T>& model) {
 
     // Hip Joint
     bodyID++;
-    Mat6<T> xtreeHip =
-        createSXform(coordinateRotation<T>(CoordinateAxis::Z, T(M_PI)),
-                     withLegSigns<T>(_hipLocation, legID));
-    Mat6<T> xtreeHipRotor =
-        createSXform(coordinateRotation<T>(CoordinateAxis::Z, T(M_PI)),
-                     withLegSigns<T>(_hipRotorLocation, legID));
+      Mat6<T> xtreeHip, xtreeHipRotor;
+    if(_robotType == RobotType::A1){
+        xtreeHip = createSXform(I3,
+                             withLegSigns<T>(_hipLocation, legID));
+        xtreeHipRotor = createSXform(I3,
+                             withLegSigns<T>(_hipRotorLocation, legID));
+    } else {
+        xtreeHip = createSXform(coordinateRotation<T>(CoordinateAxis::Z, T(M_PI)),
+                             withLegSigns<T>(_hipLocation, legID));
+        xtreeHipRotor = createSXform(coordinateRotation<T>(CoordinateAxis::Z, T(M_PI)),
+                             withLegSigns<T>(_hipRotorLocation, legID));
+    }
+
     if (sideSign < 0) {
       model.addBody(_hipInertia.flipAlongAxis(CoordinateAxis::Y),
                     _hipRotorInertia.flipAlongAxis(CoordinateAxis::Y),

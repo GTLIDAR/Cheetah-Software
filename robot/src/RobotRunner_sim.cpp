@@ -117,37 +117,49 @@ void RobotRunner_sim::run() {
                 _legController->commands[leg].zero();
             }
             _robot_ctrl->Estop();
-        }else {
+        } else {
             // Controller
-            if (!_jpos_initializer->IsInitialized(_legController)) {
-                Mat3<float> kpMat;
-                Mat3<float> kdMat;
-                // Update the jpos feedback gains
-                if (robotType == RobotType::MINI_CHEETAH) {
-                    kpMat << 5, 0, 0, 0, 5, 0, 0, 0, 5;
-                    kdMat << 0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1;
-                } else if (robotType == RobotType::A1) {
-                    kpMat << 5, 0, 0, 0, 5, 0, 0, 0, 5;
-                    kdMat << 0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1;
-                } else if (robotType == RobotType::CHEETAH_3) {
-                    kpMat << 50, 0, 0, 0, 50, 0, 0, 0, 50;
-                    kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
-                } else {
-                    assert(false);
-                }
+            if(robotType == RobotType::MINI_CHEETAH || robotType == RobotType::CHEETAH_3) {
+                if (!_jpos_initializer->IsInitialized(_legController)) {
+                    Mat3<float> kpMat;
+                    Mat3<float> kdMat;
+                    // Update the jpos feedback gains
+                    if (robotType == RobotType::MINI_CHEETAH) {
+                        kpMat << 5, 0, 0, 0, 5, 0, 0, 0, 5;
+                        kdMat << 0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1;
+                    } else if (robotType == RobotType::A1) {
+                        kpMat << 5, 0, 0, 0, 5, 0, 0, 0, 5;
+                        kdMat << 0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1;
+                    } else if (robotType == RobotType::CHEETAH_3) {
+                        kpMat << 50, 0, 0, 0, 50, 0, 0, 0, 50;
+                        kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+                    } else {
+                        assert(false);
+                    }
 
-                for (int leg = 0; leg < 4; leg++) {
-                    _legController->commands[leg].kpJoint = kpMat;
-                    _legController->commands[leg].kdJoint = kdMat;
+                    for (int leg = 0; leg < 4; leg++) {
+                        _legController->commands[leg].kpJoint = kpMat;
+                        _legController->commands[leg].kdJoint = kdMat;
+                    }
+                } else {
+                    // Run Control
+                    _robot_ctrl->runController();
+                    cheetahMainVisualization->p = _stateEstimate.position;
+
+                    // Update Visualization
+                    _robot_ctrl->updateVisualization();
+                    cheetahMainVisualization->p = _stateEstimate.position;
                 }
-            } else {
-                // Run Control
+            } else if (robotType == RobotType::A1){
+                // Directly run Control
                 _robot_ctrl->runController();
                 cheetahMainVisualization->p = _stateEstimate.position;
 
                 // Update Visualization
                 _robot_ctrl->updateVisualization();
                 cheetahMainVisualization->p = _stateEstimate.position;
+            } else {
+                assert(false);
             }
         }
 
