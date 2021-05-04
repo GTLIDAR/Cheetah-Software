@@ -2,6 +2,7 @@
 #include <ControlParameters/ControlParameterInterface.h>
 #include <Dynamics/Cheetah3.h>
 #include <Dynamics/MiniCheetah.h>
+#include <Dynamics/A1.h>
 #include <unistd.h>
 #include "ControlParameters/SimulatorParameters.h"
 
@@ -57,8 +58,15 @@ RobotInterface::RobotInterface(RobotType robotType, Graphics3D *gfx,
                  &RobotInterface::handleVisualizationData, this);
 
   printf("[RobotInterface] Init dynamics\n");
-  _quadruped = robotType == RobotType::MINI_CHEETAH ? buildMiniCheetah<double>()
-                                                    : buildCheetah3<double>();
+  if (_robotType == RobotType::MINI_CHEETAH) {
+      _quadruped = buildMiniCheetah<double>();
+  } else if (_robotType == RobotType::CHEETAH_3) {
+      _quadruped = buildCheetah3<double>();
+  } else if (_robotType == RobotType::A1) {
+      _quadruped = buildA1<double>();
+  }
+//  _quadruped = robotType == RobotType::MINI_CHEETAH ? buildMiniCheetah<double>()
+//                                                    : buildCheetah3<double>();
   _model = _quadruped.buildModel();
   _simulator = new DynamicsSimulator<double>(_model, false);
   DVec<double> zero12(12);

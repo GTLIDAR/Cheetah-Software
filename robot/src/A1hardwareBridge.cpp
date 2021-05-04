@@ -193,7 +193,21 @@ void A1hardwareBridge::handleControlParameter(const lcm::ReceiveBuffer *rbuf, co
 }
 
 void A1hardwareBridge::publishVisualizationLCM() {
+    cheetah_visualization_lcmt visualization_data;
+    for (int i = 0; i < 3; i++) {
+        visualization_data.x[i] = _mainCheetahVisualization.p[i];
+    }
 
+    for (int i = 0; i < 4; i++) {
+        visualization_data.quat[i] = _mainCheetahVisualization.quat[i];
+        visualization_data.rgba[i] = _mainCheetahVisualization.color[i];
+    }
+
+    for (int i = 0; i < 12; i++) {
+        visualization_data.q[i] = _mainCheetahVisualization.q[i];
+    }
+
+    _visualizationLCM.publish("main_cheetah_visualization", &visualization_data);
 }
 
 void A1hardwareBridge::LCMRecv()
