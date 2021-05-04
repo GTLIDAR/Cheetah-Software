@@ -37,7 +37,7 @@ void FSM_State<T>::jointPDControl(
     kpMat << 80, 0, 0, 0, 80, 0, 0, 0, 80;
     kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
     }else if(_data->_quadruped->_robotType == RobotType::A1) {
-    kpMat << 200, 0, 0, 0, 200, 0, 0, 0, 200;
+    kpMat << 80, 0, 0, 0, 80, 0, 0, 0, 80;
     kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
     }
   _data->_legController->commands[leg].kpJoint = kpMat;
