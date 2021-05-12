@@ -30,14 +30,18 @@ void A1JPos_Controller::runController(){
 //    _legController->commands[leg].kpJoint = kpMat;
 //    _legController->commands[leg].kdJoint = kdMat;
 //  }
-    float sin_mid_q[3] = {0.0, 0.8, -1.6};
+    float sin_mid_q[3] = {0.1, 0.8, -1.6};
 
     for(int leg(0); leg<4; ++leg){
         for(int jidx(0); jidx<3; ++jidx){
 //            float pos = std::sin(.001f * iter);
             _legController->commands[leg].qDes[jidx] = sin_mid_q[jidx];
             _legController->commands[leg].qdDes[jidx] = 0.;
-            _legController->commands[leg].tauFeedForward[jidx] = userParameters.tau_ff;
+            if(fmod(leg, 2)==0 && jidx == 0) {
+                _legController->commands[leg].tauFeedForward[jidx] = -userParameters.tau_ff;
+            }else if(fmod(leg, 2)==1 && jidx == 0){
+                _legController->commands[leg].tauFeedForward[jidx] = userParameters.tau_ff;
+            }
         }
 
         _legController->commands[leg].kpJoint = kpMat;
