@@ -350,34 +350,69 @@ void computeLegJacobianAndPosition(Quadruped<T>& quad, Vec3<T>& q, Mat3<T>* J,
   T l4 = quad._kneeLinkY_offset;
   T sideSign = quad.getSideSign(leg);
 
-  T s1 = std::sin(q(0));
-  T s2 = std::sin(q(1));
-  T s3 = std::sin(q(2));
+  if(quad._robotType == RobotType::A1){
+      // the hip and knee joints for A1 is flipped compared with mini cheetah
+      T s1 = std::sin(q(0));
+      T s2 = std::sin(-q(1));
+      T s3 = std::sin(-q(2));
 
-  T c1 = std::cos(q(0));
-  T c2 = std::cos(q(1));
-  T c3 = std::cos(q(2));
+      T c1 = std::cos(q(0));
+      T c2 = std::cos(-q(1));
+      T c3 = std::cos(-q(2));
 
-  T c23 = c2 * c3 - s2 * s3;
-  T s23 = s2 * c3 + c2 * s3;
+      T c23 = c2 * c3 - s2 * s3;
+      T s23 = s2 * c3 + c2 * s3;
 
-  if (J) {
-    J->operator()(0, 0) = 0;
-    J->operator()(0, 1) = l3 * c23 + l2 * c2;
-    J->operator()(0, 2) = l3 * c23;
-    J->operator()(1, 0) = l3 * c1 * c23 + l2 * c1 * c2 - (l1+l4) * sideSign * s1;
-    J->operator()(1, 1) = -l3 * s1 * s23 - l2 * s1 * s2;
-    J->operator()(1, 2) = -l3 * s1 * s23;
-    J->operator()(2, 0) = l3 * s1 * c23 + l2 * c2 * s1 + (l1+l4) * sideSign * c1;
-    J->operator()(2, 1) = l3 * c1 * s23 + l2 * c1 * s2;
-    J->operator()(2, 2) = l3 * c1 * s23;
+      if (J) {
+          J->operator()(0, 0) = 0;
+          J->operator()(0, 1) = -l3 * c23 - l2 * c2;
+          J->operator()(0, 2) = -l3 * c23;
+          J->operator()(1, 0) = l3 * c1 * c23 + l2 * c1 * c2 - (l1+l4) * sideSign * s1;
+          J->operator()(1, 1) = l3 * s1 * s23 + l2 * s1 * s2;
+          J->operator()(1, 2) = l3 * s1 * s23;
+          J->operator()(2, 0) = l3 * s1 * c23 + l2 * c2 * s1 + (l1+l4) * sideSign * c1;
+          J->operator()(2, 1) = -l3 * c1 * s23 - l2 * c1 * s2;
+          J->operator()(2, 2) = -l3 * c1 * s23;
+      }
+
+      if (p) {
+          p->operator()(0) = l3 * s23 + l2 * s2;
+          p->operator()(1) = (l1+l4) * sideSign * c1 + l3 * (s1 * c23) + l2 * c2 * s1;
+          p->operator()(2) = (l1+l4) * sideSign * s1 - l3 * (c1 * c23) - l2 * c1 * c2;
+      }
+
+  } else {
+      T s1 = std::sin(q(0));
+      T s2 = std::sin(q(1));
+      T s3 = std::sin(q(2));
+
+      T c1 = std::cos(q(0));
+      T c2 = std::cos(q(1));
+      T c3 = std::cos(q(2));
+
+      T c23 = c2 * c3 - s2 * s3;
+      T s23 = s2 * c3 + c2 * s3;
+
+      if (J) {
+        J->operator()(0, 0) = 0;
+        J->operator()(0, 1) = l3 * c23 + l2 * c2;
+        J->operator()(0, 2) = l3 * c23;
+        J->operator()(1, 0) = l3 * c1 * c23 + l2 * c1 * c2 - (l1+l4) * sideSign * s1;
+        J->operator()(1, 1) = -l3 * s1 * s23 - l2 * s1 * s2;
+        J->operator()(1, 2) = -l3 * s1 * s23;
+        J->operator()(2, 0) = l3 * s1 * c23 + l2 * c2 * s1 + (l1+l4) * sideSign * c1;
+        J->operator()(2, 1) = l3 * c1 * s23 + l2 * c1 * s2;
+        J->operator()(2, 2) = l3 * c1 * s23;
+
+      }
+
+      if (p) {
+          p->operator()(0) = l3 * s23 + l2 * s2;
+          p->operator()(1) = (l1+l4) * sideSign * c1 + l3 * (s1 * c23) + l2 * c2 * s1;
+          p->operator()(2) = (l1+l4) * sideSign * s1 - l3 * (c1 * c23) - l2 * c1 * c2;
+      }
   }
 
-  if (p) {
-    p->operator()(0) = l3 * s23 + l2 * s2;
-    p->operator()(1) = (l1+l4) * sideSign * c1 + l3 * (s1 * c23) + l2 * c2 * s1;
-    p->operator()(2) = (l1+l4) * sideSign * s1 - l3 * (c1 * c23) - l2 * c1 * c2;
-  }
 }
 
 template void computeLegJacobianAndPosition<double>(Quadruped<double>& quad,
