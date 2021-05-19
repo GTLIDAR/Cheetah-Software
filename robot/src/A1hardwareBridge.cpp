@@ -355,7 +355,6 @@ void A1hardwareBridge::run() {
 
 void A1hardwareBridge::runUnitreeLCM() {
     _lowLcm.Get(_lowState);
-    std::cout << "low state FR_0 position: " << _lowState.motorState[FR_0].q << std::endl;
     _lowLcm.Send(_lowCmd);
 //    std::cout << "low cmd level flag: " << _lowCmd.levelFlag << std::endl;
     getIMU();
