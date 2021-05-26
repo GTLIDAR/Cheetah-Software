@@ -2,8 +2,8 @@
 __collection-name__: user-parameters
 
 Kd_joint          : [1, 0.2, 0.2]
-Kp_joint          : [3, 3, 3]
-# Kp_joint          : [1, 1, 1]
+#Kp_joint          : [3, 3, 3]
+Kp_joint          : [1, 1, 1]
 
 #Kp_body           : [100, 100, 100]
 #Kd_body           : [10, 10, 10]
