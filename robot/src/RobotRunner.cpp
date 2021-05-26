@@ -75,6 +75,7 @@ void RobotRunner::init() {
   _robot_ctrl->_visualizationData= visualizationData;
   _robot_ctrl->_robotType = robotType;
   _robot_ctrl->_driverCommand = driverCommand;
+  _robot_ctrl->_HighCmd = HighlevelCmd;
   _robot_ctrl->_controlParameters = controlParameters;
   _robot_ctrl->_desiredStateCommand = _desiredStateCommand;
 

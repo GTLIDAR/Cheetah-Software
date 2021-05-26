@@ -13,6 +13,7 @@
 #include "Controllers/DesiredStateCommand.h"
 #include "SimUtilities/VisualizationData.h"
 #include "SimUtilities/GamepadCommand.h"
+#include "SimUtilities/HighCmd.h"
 
 /*!
  * Parent class of user robot controllers
@@ -40,6 +41,7 @@ protected:
   StateEstimatorContainer<float>* _stateEstimator = nullptr;
   StateEstimate<float>* _stateEstimate = nullptr;
   GamepadCommand* _driverCommand = nullptr;
+  HighCmdCustom* _HighCmd = nullptr;
   RobotControlParameters* _controlParameters = nullptr;
   DesiredStateCommand<float>* _desiredStateCommand = nullptr;
 

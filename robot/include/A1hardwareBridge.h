@@ -69,6 +69,7 @@ public:
 protected:
     PeriodicTaskManager taskManager;
     PrintTaskStatus statusTask;
+    HighCmdCustom _highlevelCommand;
     GamepadCommand _gamepadCommand;
     VisualizationData _visualizationData;
     CheetahVisualization _mainCheetahVisualization;

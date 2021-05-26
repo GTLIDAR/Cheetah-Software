@@ -78,6 +78,7 @@ void A1hardwareBridge::handleHighCmd(const lcm::ReceiveBuffer *rbuf, const std::
     (void)rbuf;
     (void)chan;
     std::cout << "[high command test] control mode is: " << msg->mode << std::endl;
+    _highlevelCommand.set(msg);
 }
 
 void A1hardwareBridge::handleInterfaceLCM() {
@@ -319,6 +320,7 @@ void A1hardwareBridge::run() {
             new RobotRunner(_controller, &taskManager, _robotParams.controller_dt, "robot-control");
 
     _robotRunner->driverCommand = &_gamepadCommand;
+    _robotRunner->HighlevelCmd = &_highlevelCommand;
     _robotRunner->vectorNavData = &_vectorNavData;
     _robotRunner->a1Data = &_lowState;
     _robotRunner->a1Command = &_lowCmd;
