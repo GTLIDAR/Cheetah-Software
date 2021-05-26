@@ -23,6 +23,7 @@
 #include "Utilities/PeriodicTask.h"
 #include "control_parameter_request_lcmt.hpp"
 #include "control_parameter_respones_lcmt.hpp"
+#include "custom_cmd_lcmt.hpp"
 #include "gamepad_lcmt.hpp"
 #include "ecat_command_t.hpp"
 #include "ecat_data_t.hpp"
@@ -38,7 +39,9 @@ public:
     A1hardwareBridge(RobotController *robot_ctrl, uint8_t level, bool load_parameters_from_file)
             : statusTask(&taskManager, 0.5f),
               _interfaceLCM(getLcmUrl(255)),
-              _visualizationLCM(getLcmUrl(255)), _lowLcm(level) {
+              _visualizationLCM(getLcmUrl(255)),
+              _highCmdLCM(getLcmUrl(255)),
+              _lowLcm(level) {
         _controller = robot_ctrl;
         _userControlParameters = robot_ctrl->getUserControlParameters();
         _load_parameters_from_file = load_parameters_from_file;
@@ -58,6 +61,7 @@ public:
     void handleControlParameter(const lcm::ReceiveBuffer* rbuf,
                                 const std::string& chan,
                                 const control_parameter_request_lcmt* msg);
+    void handleHighCmd(const lcm::ReceiveBuffer *rbuf, const std::string &chan, const custom_cmd_lcmt *msg);
     void LCMRecv();
 
     void publishVisualizationLCM();
@@ -71,6 +75,7 @@ protected:
     VectorNavData _vectorNavData;
     lcm::LCM _interfaceLCM;
     lcm::LCM _visualizationLCM;
+    lcm::LCM _highCmdLCM;
     control_parameter_respones_lcmt _parameter_response_lcmt{};
     LowCmd _lowCmd{};
     LowState _lowState{};

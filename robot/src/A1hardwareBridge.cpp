@@ -58,13 +58,26 @@ void A1hardwareBridge::initCommon() {
         initError("_interfaceLCM failed to initialize\n", false);
     }
 
-    printf("[HardwareBridge] Subscribe LCM\n");
+    if (!_highCmdLCM.good()) {
+        initError("_highCmdLCM failed to initialize\n", false);
+    }
+
+    printf("[A1HardwareBridge] Subscribe LCM\n");
     _interfaceLCM.subscribe("interface", &A1hardwareBridge::handleGamepadLCM, this);
     _interfaceLCM.subscribe("interface_request",
                             &A1hardwareBridge::handleControlParameter, this);
 
-    printf("[HardwareBridge] Start interface LCM handler\n");
+    printf("[A1HardwareBridge] Start interface LCM handler\n");
     _interfaceLcmThread = std::thread(&A1hardwareBridge::handleInterfaceLCM, this);
+
+    printf("[A1Hardware Bridge] Start high-level command lCM handler\n");
+    _highCmdLCM.subscribe("high_level_command", &A1hardwareBridge::handleHighCmd, this);
+}
+
+void A1hardwareBridge::handleHighCmd(const lcm::ReceiveBuffer *rbuf, const std::string &chan, const custom_cmd_lcmt *msg) {
+    (void)rbuf;
+    (void)chan;
+    std::cout << "[high command test] control mode is: " << msg->mode << std::endl;
 }
 
 void A1hardwareBridge::handleInterfaceLCM() {
