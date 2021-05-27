@@ -1,4 +1,4 @@
-## Cheetah-Software (A1 included)
+## Cheetah-Software for A1 (with new autonomous mode)
 This repository contains the Robot and Simulation software project.  For a getting started guide, see the documentation folder.
 
 The common folder contains the common library with dynamics and utilities
@@ -7,8 +7,29 @@ The robot folder will contain the robot program
 The sim folder will contain the simulation program. It is the only program which depends on QT.
 The third-party will contain *small* third party libraries that we have modified. This should just be libsoem for Cheetah 3, which Pat modified at one point.
 
+
+## Configuration
+The A1 hardware interface requires installation of `unitree_legged_sdk` and `aliengo_sdk` (not used but has to be installed for future development).
+Make sure the following exist in your `~/.bashrc` file or export them in terminal. `melodic`, `gazebo-8`, `~/catkin_ws`, `amd64` and the paths to `unitree_legged_sdk` should be replaced in your own case.
+```
+source /opt/ros/melodic/setup.bash
+source /usr/share/gazebo-8/setup.sh
+source ~/catkin_ws/devel/setup.bash
+export ROS_PACKAGE_PATH=~/catkin_ws:${ROS_PACKAGE_PATH}
+export GAZEBO_PLUGIN_PATH=~/catkin_ws/devel/lib:${GAZEBO_PLUGIN_PATH}
+export LD_LIBRARY_PATH=~/catkin_ws/devel/lib:${LD_LIBRARY_PATH}
+export UNITREE_LEGGED_SDK_PATH=~/unitree_legged_sdk
+export ALIENGO_SDK_PATH=~/aliengo_sdk
+#amd64, arm32, arm64
+export UNITREE_PLATFORM="amd64"
+```
+
+See more details in:
+* [unitree_legged_sdk](https://github.com/unitreerobotics)
+* [aliengo_sdk](https://github.com/unitreerobotics)
+
 ## Build
-To build all code:
+To build all code, follow the same procedures as original Cheetah Software:
 ```
 mkdir build
 cd build
@@ -16,12 +37,6 @@ cmake ..
 ./../scripts/make_types.sh
 make -j4
 ```
-
-If you are building code on your computer that you would like to copy over to the mini cheetah, you must replace the cmake command with
-```
-cmake -DMINI_CHEETAH_BUILD=TRUE
-```
-otherwise it will not work.  If you are building mini cheetah code one the mini cheetah computer, you do not need to do this.
 
 This build process builds the common library, robot code, and simulator. If you just change robot code, you can simply run `make -j4` again. If you change LCM types, you'll need to run `cmake ..; make -j4`. This automatically runs `make_types.sh`.
 
@@ -46,12 +61,13 @@ To run the simulator:
 ```
 Example)
 ```
-./user/JPos_Controller/jpos_ctrl 3 s
+./user/A1JPos_Controller/a1jpos_ctrl a s // joint PD control
+./user/MIT_Controller/mit_ctrl a s // MIT Controller for A1
 ```
 3: Cheetah 3, m: Mini Cheetah, a: A1
 s: simulation, r: robot
 
-## Run Mini cheetah
+## Run A1 hardware
 1. Create build folder `mkdir mc-build`
 2. Build as mini cheetah executable `cd mc-build; cmake -DMINI_CHEETAH_BUILD=TRUE ..; make -j`
 3. Connect to mini cheetah over ethernet, verify you can ssh in
