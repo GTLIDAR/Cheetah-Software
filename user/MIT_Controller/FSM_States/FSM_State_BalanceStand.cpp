@@ -219,7 +219,7 @@ void FSM_State_BalanceStand<T>::BalanceStandStep() {
   _wbc_data->aBody_des.setZero();
 
   _wbc_data->pBody_RPY_des = _ini_body_ori_rpy;
-  if(this->_data->controlParameters->use_rc){
+  if(this->_data->controlParameters->use_rc == 1 && this->_data->controlParameters->auto_mode == 0){
     const rc_control_settings* rc_cmd = this->_data->_desiredStateCommand->rcCommand;
     // Orientation
     _wbc_data->pBody_RPY_des[0] = rc_cmd->rpy_des[0]*1.4;
@@ -228,7 +228,14 @@ void FSM_State_BalanceStand<T>::BalanceStandStep() {
 
     // Height
     _wbc_data->pBody_des[2] += 0.12 * rc_cmd->height_variation;
-  }else{
+  } else if (this->_data->controlParameters->use_rc == 0 && this->_data->controlParameters->auto_mode == 1){
+      _wbc_data->pBody_RPY_des[0] = fmin(fmax(this->_data->_desiredStateCommand->highCommand->roll, -0.6), 0.6);
+      _wbc_data->pBody_RPY_des[1] = fmin(fmax(this->_data->_desiredStateCommand->highCommand->pitch, -0.6), 0.6);
+      _wbc_data->pBody_RPY_des[2] -= fmin(fmax(this->_data->_desiredStateCommand->highCommand->yaw, -0.6), 0.6);
+
+      // Height
+      _wbc_data->pBody_des[2] += 0.05 * this->_data->_desiredStateCommand->highCommand->bodyHeight;
+  } else if (this->_data->controlParameters->use_rc == 0 && this->_data->controlParameters->auto_mode == 0) {
     // Orientation
     _wbc_data->pBody_RPY_des[0] = 
      0.6* this->_data->_desiredStateCommand->gamepadCommand->leftStickAnalog[0];
@@ -240,6 +247,9 @@ void FSM_State_BalanceStand<T>::BalanceStandStep() {
     // Height
     _wbc_data->pBody_des[2] += 
       0.12 * this->_data->_desiredStateCommand->gamepadCommand->rightStickAnalog[0];
+  } else {
+      std::cout << "Wrong mode selection in control panel!!!\n";
+      assert(false);
   }
   _wbc_data->vBody_Ori_des.setZero();
 

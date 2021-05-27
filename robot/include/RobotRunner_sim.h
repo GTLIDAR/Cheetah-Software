@@ -15,6 +15,7 @@
 #include "ControlParameters/RobotParameters.h"
 #include "Controllers/StateEstimatorContainer.h"
 #include "SimUtilities/IMUTypes.h"
+#include "SimUtilities/HighCmd.h"
 #include "rt/rt_rc_interface.h"
 #include "Controllers/ContactEstimator.h"
 #include "Controllers/DesiredStateCommand.h"
@@ -46,6 +47,7 @@ public:
 
     RobotController* _robot_ctrl;
 
+    HighCmdCustom* HighlevelCmd;
     GamepadCommand* driverCommand;
     RobotType robotType;
     VectorNavData* vectorNavData;

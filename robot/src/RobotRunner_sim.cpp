@@ -66,6 +66,7 @@ void RobotRunner_sim::init() {
     _desiredStateCommand =
             new DesiredStateCommand<float>(driverCommand,
                                            &rc_control,
+                                           HighlevelCmd,
                                            controlParameters,
                                            &_stateEstimate,
                                            controlParameters->controller_dt);
@@ -79,6 +80,7 @@ void RobotRunner_sim::init() {
     _robot_ctrl->_visualizationData= visualizationData;
     _robot_ctrl->_robotType = robotType;
     _robot_ctrl->_driverCommand = driverCommand;
+    _robot_ctrl->_HighCmd = HighlevelCmd;
     _robot_ctrl->_controlParameters = controlParameters;
     _robot_ctrl->_desiredStateCommand = _desiredStateCommand;
 

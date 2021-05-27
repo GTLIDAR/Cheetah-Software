@@ -21,9 +21,9 @@ struct HighCmdCustom {
     float rotateSpeed;	               // speed of spin left or right, scale: -1~1
     float bodyHeight;                  // body height, scale: -1~1
     float footRaiseHeight;             // foot up height while walking (unavailable now)
-    float yaw;                         // unit: radian, scale: -1~1
-    float pitch;                       // unit: radian, scale: -1~1
-    float roll;                        // unit: radian, scale: -1~1
+    float yaw;                         // unit: radian, scale: -0.6~0.6
+    float pitch;                       // unit: radian, scale: -0.6~0.6
+    float roll;                        // unit: radian, scale: -0.6~0.6
     int8_t wirelessRemote[40];
     int8_t AppRemote[40];
     int32_t reserve;

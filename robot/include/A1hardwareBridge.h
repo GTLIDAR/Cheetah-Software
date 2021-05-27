@@ -56,6 +56,7 @@ public:
     void runUnitreeLCM();
     void getIMU();
     void handleInterfaceLCM();
+    void handleHighCmdLCM();
     void handleGamepadLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,
                           const gamepad_lcmt* msg);
     void handleControlParameter(const lcm::ReceiveBuffer* rbuf,
@@ -87,6 +88,7 @@ protected:
     RobotControlParameters _robotParams;
     u64 _iterations = 0;
     std::thread _interfaceLcmThread;
+    std::thread _highCmdLcmThread;
     volatile bool _interfaceLcmQuit = false;
     RobotController* _controller = nullptr;
     ControlParameters* _userControlParameters = nullptr;

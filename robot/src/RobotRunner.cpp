@@ -62,6 +62,7 @@ void RobotRunner::init() {
   _desiredStateCommand =
     new DesiredStateCommand<float>(driverCommand,
         &rc_control,
+        HighlevelCmd,
         controlParameters,
         &_stateEstimate,
         controlParameters->controller_dt);

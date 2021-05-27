@@ -83,17 +83,32 @@ void ConvexMPCLocomotion::_SetupCommand(ControlFSMData<float> & data){
 
   float x_vel_cmd, y_vel_cmd;
   float filter(0.1);
-  if(data.controlParameters->use_rc){
+  if(data.controlParameters->use_rc == 1 && data.controlParameters->auto_mode == 0){
     const rc_control_settings* rc_cmd = data._desiredStateCommand->rcCommand;
     data.userParameters->cmpc_gait = rc_cmd->variable[0];
     _yaw_turn_rate = -rc_cmd->omega_des[2];
     x_vel_cmd = rc_cmd->v_des[0];
     y_vel_cmd = rc_cmd->v_des[1] * 0.5;
     _body_height += rc_cmd->height_variation * 0.08;
-  }else{
+  } else if (data.controlParameters->use_rc == 0 && data.controlParameters->auto_mode == 1) { // Autonomous mode
+      _yaw_turn_rate = data._desiredStateCommand->highCommand->rotateSpeed;
+      x_vel_cmd = data._desiredStateCommand->highCommand->forwardSpeed;
+      y_vel_cmd = data._desiredStateCommand->highCommand->sideSpeed * 0.2;
+      _body_height += data._desiredStateCommand->highCommand->bodyHeight * 0.05;
+      if(_body_height > 0.4){
+          _body_height = 0.4;
+      }
+      if(_body_height < 0.15){
+          _body_height = 0.15;
+      }
+
+  } else if (data.controlParameters->use_rc == 0 && data.controlParameters->auto_mode == 0) {
     _yaw_turn_rate = data._desiredStateCommand->rightAnalogStick[0];
     x_vel_cmd = data._desiredStateCommand->leftAnalogStick[1];
     y_vel_cmd = data._desiredStateCommand->leftAnalogStick[0];
+  } else {
+      std::cout << "Wrong mode selection in control panel!!!\n";
+      assert(false);
   }
   _x_vel_des = _x_vel_des*(1-filter) + x_vel_cmd*filter;
   _y_vel_des = _y_vel_des*(1-filter) + y_vel_cmd*filter;

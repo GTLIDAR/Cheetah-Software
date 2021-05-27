@@ -70,8 +70,11 @@ void A1hardwareBridge::initCommon() {
     printf("[A1HardwareBridge] Start interface LCM handler\n");
     _interfaceLcmThread = std::thread(&A1hardwareBridge::handleInterfaceLCM, this);
 
-    printf("[A1Hardware Bridge] Start high-level command lCM handler\n");
+    printf("[A1Hardware Bridge] Subscribe high-level command lCM\n");
     _highCmdLCM.subscribe("high_level_command", &A1hardwareBridge::handleHighCmd, this);
+
+    printf("[A1HardwareBridge] Start high-level command lCM handler\n");
+    _highCmdLcmThread = std::thread(&A1hardwareBridge::handleHighCmdLCM, this);
 }
 
 void A1hardwareBridge::handleHighCmd(const lcm::ReceiveBuffer *rbuf, const std::string &chan, const custom_cmd_lcmt *msg) {
@@ -83,6 +86,10 @@ void A1hardwareBridge::handleHighCmd(const lcm::ReceiveBuffer *rbuf, const std::
 
 void A1hardwareBridge::handleInterfaceLCM() {
     while (!_interfaceLcmQuit) _interfaceLCM.handle();
+}
+
+void A1hardwareBridge::handleHighCmdLCM() {
+    while (!_interfaceLcmQuit) _highCmdLCM.handle();
 }
 
 /*!

@@ -96,7 +96,7 @@ void ControlFSM<T>::runFSM() {
   // Check the robot state for safe operation
   operatingMode = safetyPreCheck();
 
-  if(data.controlParameters->use_rc){
+  if(data.controlParameters->use_rc == 1 && data.controlParameters->auto_mode == 0){
     int rc_mode = data._desiredStateCommand->rcCommand->mode;
     if(rc_mode == RC_mode::RECOVERY_STAND){
       data.controlParameters->control_mode = K_RECOVERY_STAND;
@@ -115,6 +115,18 @@ void ControlFSM<T>::runFSM() {
    }
       //data.controlParameters->control_mode = K_FRONTJUMP;
     //std::cout<< "control mode: "<<data.controlParameters->control_mode<<std::endl;
+  }
+
+  if(data.controlParameters->use_rc == 0 && data.controlParameters->auto_mode == 1){
+      int auto_mode = data._desiredStateCommand->highCommand->mode;
+      if(auto_mode == 0) {
+          data.controlParameters->control_mode = K_RECOVERY_STAND;
+      } else if(auto_mode == 1){
+          data.controlParameters->control_mode = K_BALANCE_STAND;
+      } else if(auto_mode == 2){
+          data.controlParameters->control_mode = K_LOCOMOTION;
+      }
+
   }
 
   // Run the robot control code if operating mode is not unsafe

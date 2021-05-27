@@ -55,10 +55,31 @@ void DesiredStateCommand<T>::convertToStateCommands() {
       joystickLeft.setZero();
       joystickRight.setZero();
     }
-  } else { // No Remote Controller
+  } else if (parameters->use_rc == 0 && parameters->auto_mode == 1) { // Autonomous mode
+    if(highCommand->mode == 0){
+        joystickLeft.setZero();
+        joystickRight.setZero();
+
+    } else if(highCommand->mode == 1){
+        joystickLeft[0] = 0.; // Y
+        joystickLeft[1] = 0.; // X
+        joystickRight[0] = highCommand->yaw;
+
+    } else if(highCommand->mode == 2){
+        joystickLeft[0] = highCommand->sideSpeed; // Y
+        joystickLeft[1] = highCommand->forwardSpeed; // X
+        joystickRight[0] = highCommand->rotateSpeed; // Yaw rate
+//        joystickRight[1] = rcCommand->omega_des[1]; // Pitch rate
+
+    }
+
+  } else if (parameters->use_rc == 0 && parameters->auto_mode == 0){ // No Remote Controller
     joystickLeft = gamepadCommand->leftStickAnalog;
     joystickRight = gamepadCommand->rightStickAnalog;
     trigger_pressed = gamepadCommand->a;
+  } else {
+    std::cout << "Wrong mode selection in control panel!!!\n";
+    assert(false);
   }
   // Warning!!!!
   // Recommend not to use stateDes
@@ -73,7 +94,7 @@ void DesiredStateCommand<T>::convertToStateCommands() {
   // Desired states from the controller
   data.stateDes(6) = deadband(leftAnalogStick[1], minVelX, maxVelX);  // forward linear velocity
   data.stateDes(7) = deadband(leftAnalogStick[0], minVelY, maxVelY);  // lateral linear velocity
-  data.stateDes(8) = 0.0;  // vertical linear velocity
+  data.stateDes(8) = 0.0;  // vertical linear velocity_highCmdLcmThread
   data.stateDes(0) = dt * data.stateDes(6);  // X position
   data.stateDes(1) = dt * data.stateDes(7);  // Y position
   data.stateDes(2) = 0.26;  // Z position height
