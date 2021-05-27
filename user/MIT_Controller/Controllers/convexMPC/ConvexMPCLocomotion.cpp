@@ -73,10 +73,13 @@ void ConvexMPCLocomotion::recompute_timing(int iterations_per_mpc) {
 void ConvexMPCLocomotion::_SetupCommand(ControlFSMData<float> & data){
   if(data._quadruped->_robotType == RobotType::MINI_CHEETAH){
     _body_height = 0.29;
+    _footRaiseHeight = 0.06;
   }else if(data._quadruped->_robotType == RobotType::A1){
       _body_height = 0.29;
+      _footRaiseHeight = 0.06;
   }else if(data._quadruped->_robotType == RobotType::CHEETAH_3){
     _body_height = 0.45;
+    _footRaiseHeight = 0.06;
   }else{
     assert(false);
   }
@@ -92,20 +95,23 @@ void ConvexMPCLocomotion::_SetupCommand(ControlFSMData<float> & data){
     _body_height += rc_cmd->height_variation * 0.08;
   } else if (data.controlParameters->use_rc == 0 && data.controlParameters->auto_mode == 1) { // Autonomous mode
       _yaw_turn_rate = data._desiredStateCommand->highCommand->rotateSpeed;
-      x_vel_cmd = data._desiredStateCommand->highCommand->forwardSpeed;
-      y_vel_cmd = data._desiredStateCommand->highCommand->sideSpeed * 0.2;
-      _body_height += data._desiredStateCommand->highCommand->bodyHeight * 0.05;
+      x_vel_cmd = fmin(fmax(data._desiredStateCommand->highCommand->forwardSpeed, -1.0), 1.0);
+      y_vel_cmd = fmin(fmax(data._desiredStateCommand->highCommand->sideSpeed, -1.0), 1.0) * 0.3;
+      _body_height += 0.08 * fmin(fmax(data._desiredStateCommand->highCommand->bodyHeight, -1.0), 1.0);
       if(_body_height > 0.4){
           _body_height = 0.4;
       }
       if(_body_height < 0.15){
           _body_height = 0.15;
       }
+      _footRaiseHeight += 0.14 * fmin(fmax(data._desiredStateCommand->highCommand->footRaiseHeight, 0.0), 1.0);
 
   } else if (data.controlParameters->use_rc == 0 && data.controlParameters->auto_mode == 0) {
     _yaw_turn_rate = data._desiredStateCommand->rightAnalogStick[0];
     x_vel_cmd = data._desiredStateCommand->leftAnalogStick[1];
-    y_vel_cmd = data._desiredStateCommand->leftAnalogStick[0];
+    y_vel_cmd = data._desiredStateCommand->leftAnalogStick[0] * 0.3;
+    _body_height += 0.08 * fmin(fmax(data._desiredStateCommand->rightAnalogStick[1], -1.0), 1.0);
+    _footRaiseHeight += 0.14 * fmin(fmax(data._desiredStateCommand->gamepadCommand->rightTriggerAnalog, 0.0), 1.0);
   } else {
       std::cout << "Wrong mode selection in control panel!!!\n";
       assert(false);
@@ -267,7 +273,7 @@ void ConvexMPCLocomotion::run(ControlFSMData<float>& data) {
     }
     //if(firstSwing[i]) {
     //footSwingTrajectories[i].setHeight(.05);
-    footSwingTrajectories[i].setHeight(.06);
+    footSwingTrajectories[i].setHeight(_footRaiseHeight);
     Vec3<float> offset(0, side_sign[i] * .065, 0);
 
     Vec3<float> pRobotFrame = (data._quadruped->getHipLocation(i) + offset);

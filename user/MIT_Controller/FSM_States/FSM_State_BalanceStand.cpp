@@ -228,25 +228,25 @@ void FSM_State_BalanceStand<T>::BalanceStandStep() {
 
     // Height
     _wbc_data->pBody_des[2] += 0.12 * rc_cmd->height_variation;
-  } else if (this->_data->controlParameters->use_rc == 0 && this->_data->controlParameters->auto_mode == 1){
-      _wbc_data->pBody_RPY_des[0] = fmin(fmax(this->_data->_desiredStateCommand->highCommand->roll, -0.6), 0.6);
-      _wbc_data->pBody_RPY_des[1] = fmin(fmax(this->_data->_desiredStateCommand->highCommand->pitch, -0.6), 0.6);
-      _wbc_data->pBody_RPY_des[2] -= fmin(fmax(this->_data->_desiredStateCommand->highCommand->yaw, -0.6), 0.6);
+  } else if (this->_data->controlParameters->use_rc == 0 && this->_data->controlParameters->auto_mode == 1){// Autonomous mode
+      _wbc_data->pBody_RPY_des[0] = fmin(fmax(this->_data->_desiredStateCommand->highCommand->roll, -1.0), 1.0)*0.3;
+      _wbc_data->pBody_RPY_des[1] = fmin(fmax(this->_data->_desiredStateCommand->highCommand->pitch, -1.0), 1.0)*0.3;
+      _wbc_data->pBody_RPY_des[2] -= fmin(fmax(this->_data->_desiredStateCommand->highCommand->yaw, -1.0), 1.0)*0.5;
 
       // Height
-      _wbc_data->pBody_des[2] += 0.05 * this->_data->_desiredStateCommand->highCommand->bodyHeight;
+      _wbc_data->pBody_des[2] += 0.12 * fmin(fmax(this->_data->_desiredStateCommand->highCommand->bodyHeight, -1.0), 1.0);
   } else if (this->_data->controlParameters->use_rc == 0 && this->_data->controlParameters->auto_mode == 0) {
     // Orientation
     _wbc_data->pBody_RPY_des[0] = 
-     0.6* this->_data->_desiredStateCommand->gamepadCommand->leftStickAnalog[0];
+     0.3* this->_data->_desiredStateCommand->gamepadCommand->leftStickAnalog[0];
      _wbc_data->pBody_RPY_des[1] = 
-      0.6*this->_data->_desiredStateCommand->gamepadCommand->rightStickAnalog[0];
+      0.3*this->_data->_desiredStateCommand->gamepadCommand->rightStickAnalog[0];
     _wbc_data->pBody_RPY_des[2] -= 
-      this->_data->_desiredStateCommand->gamepadCommand->rightStickAnalog[1];
+      0.5*this->_data->_desiredStateCommand->gamepadCommand->rightStickAnalog[1];
     
     // Height
     _wbc_data->pBody_des[2] += 
-      0.12 * this->_data->_desiredStateCommand->gamepadCommand->rightStickAnalog[0];
+      0.12 * this->_data->_desiredStateCommand->gamepadCommand->leftStickAnalog[1];
   } else {
       std::cout << "Wrong mode selection in control panel!!!\n";
       assert(false);

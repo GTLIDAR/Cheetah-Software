@@ -124,6 +124,8 @@ private:
   float _body_height_running = 0.29;
   float _body_height_jumping = 0.36;
 
+  float _footRaiseHeight = 0.06;
+
   void recompute_timing(int iterations_per_mpc);
   void updateMPCIfNeeded(int* mpcTable, ControlFSMData<float>& data, bool omniMode);
   void solveDenseMPC(int *mpcTable, ControlFSMData<float> &data);

@@ -80,7 +80,6 @@ void A1hardwareBridge::initCommon() {
 void A1hardwareBridge::handleHighCmd(const lcm::ReceiveBuffer *rbuf, const std::string &chan, const custom_cmd_lcmt *msg) {
     (void)rbuf;
     (void)chan;
-    std::cout << "[high command test] control mode is: " << msg->mode << std::endl;
     _highlevelCommand.set(msg);
 }
 
