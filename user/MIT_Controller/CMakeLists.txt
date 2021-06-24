@@ -25,6 +25,9 @@ file(GLOB_RECURSE sources
 "Controllers/BalanceController/*.cpp" 
 "Controllers/convexMPC/*.cpp")
 
+add_library(user_controller SHARED ${sources})
+target_link_libraries(user_controller inih dynacore_param_handler JCQP osqp qpOASES Goldfarb_Optimizer ${EXTRA_LIBS})
+
 add_subdirectory(Controllers/WBC)
 add_subdirectory(Controllers/WBC_Ctrl)
 add_subdirectory(Controllers/VisionMPC)

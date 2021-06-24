@@ -19,7 +19,7 @@
 
 #include "SimUtilities/GamepadCommand.h"
 #include "SimUtilities/HighCmd.h"
-#include "robot/include/rt/rt_rc_interface.h"
+#include "../../robot/include/rt/rt_rc_interface.h"
 
 /**
  *
