@@ -10,6 +10,7 @@
 
 
 struct HighCmdCustom {
+    HighCmdCustom(){zero();}
     int8_t levelFlag;
     int16_t commVersion;
     int16_t robotID;
@@ -28,6 +29,29 @@ struct HighCmdCustom {
     int8_t AppRemote[40];
     int32_t reserve;
     int32_t crc;
+
+    void zero(){
+        levelFlag = 0;
+        commVersion = 0;
+        robotID = 0;
+        SN = 0;
+        bandWidth = 0;
+        mode = 0;
+        forwardSpeed = 0.0;
+        sideSpeed = 0.0;
+        rotateSpeed = 0.0;
+        bodyHeight = 0.0;
+        footRaiseHeight = 0.0;
+        yaw = 0.0;
+        pitch = 0.0;
+        roll = 0.0;
+        for(int i = 0; i<40; i++){
+            wirelessRemote[i] = 0;
+            AppRemote[i] = 0;
+        }
+        reserve = 0;
+        crc = 0;
+    }
 
     void set(const custom_cmd_lcmt* msg){
         levelFlag = msg->levelFlag;
