@@ -8,6 +8,22 @@
 #include "ControlFSM.h"
 #include <rt/rt_rc_interface.h>
 
+static const char *enum_str_operatingmode[] =
+        { "NORMAL", "TRANSITIONING", "ESTOP", "EDAMP" };
+
+static const char *enum_str_statename[] =
+        {   "INVALID",
+            "PASSIVE",
+            "JOINT_PD",
+            "IMPEDANCE_CONTROL",
+            "STAND_UP",
+            "BALANCE_STAND",
+            "LOCOMOTION",
+            "RECOVERY_STAND",
+            "VISION",
+            "BACKFLIP",
+            "FRONTJUMP" };
+
 /**
  * Constructor for the Control FSM. Passes in all of the necessary
  * data and stores it in a struct. Initializes the FSM with a starting
@@ -28,7 +44,7 @@ ControlFSM<T>::ControlFSM(Quadruped<T>* _quadruped,
                           DesiredStateCommand<T>* _desiredStateCommand,
                           RobotControlParameters* controlParameters,
                           VisualizationData* visualizationData,
-                          MIT_UserParameters* userParameters)
+                          MIT_UserParameters* userParameters) : _lcm(getLcmUrl(255))
 {
   // Add the pointers to the ControlFSMData struct
   data._quadruped = _quadruped;
@@ -216,6 +232,30 @@ void ControlFSM<T>::runFSM() {
 
   // Increase the iteration counter
   iter++;
+  std::string operating_mode_name;
+  switch (operatingMode) {
+      case FSM_OperatingMode::NORMAL: operating_mode_name = enum_str_operatingmode[int(FSM_OperatingMode::NORMAL)]; break;
+      case FSM_OperatingMode::TRANSITIONING: operating_mode_name = enum_str_operatingmode[int(FSM_OperatingMode::TRANSITIONING)]; break;
+      case FSM_OperatingMode::ESTOP: operating_mode_name = enum_str_operatingmode[int(FSM_OperatingMode::ESTOP)]; break;
+      case FSM_OperatingMode::EDAMP: operating_mode_name = enum_str_operatingmode[int(FSM_OperatingMode::EDAMP)]; break;
+  }
+  std::string cur_fsm;
+  switch (currentState->stateName) {
+      case FSM_StateName::INVALID: cur_fsm = enum_str_statename[int(FSM_StateName::INVALID)]; break;
+      case FSM_StateName::PASSIVE: cur_fsm = enum_str_statename[int(FSM_StateName::PASSIVE)]; break;
+      case FSM_StateName::JOINT_PD: cur_fsm = enum_str_statename[int(FSM_StateName::JOINT_PD)]; break;
+      case FSM_StateName::IMPEDANCE_CONTROL: cur_fsm = enum_str_statename[int(FSM_StateName::IMPEDANCE_CONTROL)]; break;
+      case FSM_StateName::STAND_UP: cur_fsm = enum_str_statename[int(FSM_StateName::STAND_UP)]; break;
+      case FSM_StateName::BALANCE_STAND: cur_fsm = enum_str_statename[int(FSM_StateName::BALANCE_STAND)]; break;
+      case FSM_StateName::LOCOMOTION: cur_fsm = enum_str_statename[int(FSM_StateName::LOCOMOTION)]; break;
+      case FSM_StateName::RECOVERY_STAND: cur_fsm = enum_str_statename[int(FSM_StateName::RECOVERY_STAND)]; break;
+      case FSM_StateName::VISION: cur_fsm = enum_str_statename[int(FSM_StateName::VISION)]; break;
+      case FSM_StateName::BACKFLIP: cur_fsm = enum_str_statename[int(FSM_StateName::BACKFLIP)]; break;
+      case FSM_StateName::FRONTJUMP: cur_fsm = enum_str_statename[int(FSM_StateName::FRONTJUMP)]; break;
+  }
+  _locomotion_status.current_fsm = cur_fsm;
+  _locomotion_status.operating_mode = operating_mode_name;
+  _lcm.publish("locomotion_status", &_locomotion_status);
 }
 
 /**

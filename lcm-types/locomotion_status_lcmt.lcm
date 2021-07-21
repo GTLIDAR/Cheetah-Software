@@ -1,0 +1,4 @@
+struct locomotion_status_lcmt {
+  string operating_mode;
+  string current_fsm;
+}

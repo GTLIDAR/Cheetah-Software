@@ -21,11 +21,13 @@
 #include "../FSM_States/FSM_State_Vision.h"
 #include "../FSM_States/FSM_State_BackFlip.h"
 #include "../FSM_States/FSM_State_FrontJump.h"
+#include "lcm/lcm-cpp.hpp"
+#include "locomotion_status_lcmt.hpp"
 
 /**
  * Enumerate all of the operating modes
  */
-enum class FSM_OperatingMode { 
+enum class FSM_OperatingMode {
   NORMAL, TRANSITIONING, ESTOP, EDAMP };
 
 /**
@@ -114,6 +116,10 @@ class ControlFSM {
   int iter = 0;
 
   bool ESTOP_first = false;
+
+  lcm::LCM _lcm;
+
+  locomotion_status_lcmt _locomotion_status;
 
   //lcm::LCM state_estimator_lcm;
   //state_estimator_lcmt _state_estimator;
