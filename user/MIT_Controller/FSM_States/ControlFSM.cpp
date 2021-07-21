@@ -131,6 +131,7 @@ void ControlFSM<T>::runFSM() {
 
   // Run the robot control code if operating mode is not unsafe
   if (operatingMode != FSM_OperatingMode::ESTOP) {
+//  if (!ESTOP) {
     // Run normal controls if no transition is detected
     if (operatingMode == FSM_OperatingMode::NORMAL) {
       // Check the current state for any transition
@@ -181,11 +182,33 @@ void ControlFSM<T>::runFSM() {
       // Check the robot state for safe operation
       safetyPostCheck();
     }
+    ESTOP_first = false;
 
-  } else { // if ESTOP
+  } else if (operatingMode == FSM_OperatingMode::ESTOP && !ESTOP_first){ // if ESTOP
+//  if(ESTOP){
     currentState = statesList.passive;
     currentState->onEnter();
-    nextStateName = currentState->stateName;
+//    nextStateName = currentState->stateName;
+    ESTOP_first = true;
+  } else if (operatingMode == FSM_OperatingMode::ESTOP && ESTOP_first) {
+      // Check the current state for any transition
+      nextStateName = currentState->checkTransition();
+
+      // Detect a commanded transition
+      if (nextStateName != currentState->stateName) {
+          // Set the FSM operating mode to transitioning
+          operatingMode = FSM_OperatingMode::TRANSITIONING;
+
+          // Get the next FSM State by name
+          nextState = getNextState(nextStateName);
+
+          // Print transition initialized info
+          //printInfo(1);
+
+      } else {
+          // Run the iteration for the current state normally
+          currentState->run();
+      }
   }
 
   // Print the current state of the FSM
@@ -208,6 +231,7 @@ FSM_OperatingMode ControlFSM<T>::safetyPreCheck() {
   if (currentState->checkSafeOrientation && data.controlParameters->control_mode != K_RECOVERY_STAND) {
     if (!safetyChecker->checkSafeOrientation()) {
       operatingMode = FSM_OperatingMode::ESTOP;
+//      ESTOP = true;
       std::cout << "broken: Orientation Safety Ceck FAIL" << std::endl;
     }
   }
