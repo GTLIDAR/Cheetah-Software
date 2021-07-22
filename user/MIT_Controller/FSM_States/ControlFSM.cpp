@@ -141,6 +141,8 @@ void ControlFSM<T>::runFSM() {
           data.controlParameters->control_mode = K_BALANCE_STAND;
       } else if(auto_mode == 2){
           data.controlParameters->control_mode = K_LOCOMOTION;
+      } else if(auto_mode == 9){
+          data.controlParameters->control_mode = K_PASSIVE;
       }
 
   }

@@ -16,7 +16,7 @@ struct HighCmdCustom {
     int16_t robotID;
     int32_t SN;
     int8_t bandWidth;
-    int8_t mode;                      // 0:idle, default stand      1:forced stand     2:walk continuously
+    int8_t mode;                      // 0:idle, default stand      1:forced stand     2:walk continuously   9:paasive (for debug)
     float forwardSpeed;                // speed of move forward or backward, scale: -1~1
     float sideSpeed;                   // speed of move left or right, scale: -1~1
     float rotateSpeed;	               // speed of spin left or right, scale: -1~1
