@@ -95,7 +95,7 @@ void ConvexMPCLocomotion::_SetupCommand(ControlFSMData<float> & data){
     _body_height += rc_cmd->height_variation * 0.08;
   } else if (data.controlParameters->use_rc == 0 && data.controlParameters->auto_mode == 1) { // Autonomous mode
       _yaw_turn_rate = data._desiredStateCommand->highCommand->rotateSpeed;
-      x_vel_cmd = fmin(fmax(data._desiredStateCommand->highCommand->forwardSpeed, -1.0), 1.0);
+      x_vel_cmd = fmin(fmax(data._desiredStateCommand->highCommand->forwardSpeed, -1.5), 1.5);
       y_vel_cmd = fmin(fmax(data._desiredStateCommand->highCommand->sideSpeed, -1.0), 1.0) * 0.3;
       _body_height += 0.08 * fmin(fmax(data._desiredStateCommand->highCommand->bodyHeight, -1.0), 1.0);
       if(_body_height > 0.4){
