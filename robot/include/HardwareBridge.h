@@ -22,6 +22,7 @@
 #include "Utilities/PeriodicTask.h"
 #include "control_parameter_request_lcmt.hpp"
 #include "control_parameter_respones_lcmt.hpp"
+#include "custom_cmd_lcmt.hpp"
 #include "gamepad_lcmt.hpp"
 #include "microstrain_lcmt.hpp"
 #include "ecat_command_t.hpp"
@@ -37,7 +38,8 @@ class HardwareBridge {
   HardwareBridge(RobotController* robot_ctrl)
       : statusTask(&taskManager, 0.5f),
         _interfaceLCM(getLcmUrl(255)),
-        _visualizationLCM(getLcmUrl(255)) {
+        _visualizationLCM(getLcmUrl(255)),
+        _highCmdLCM(getLcmUrl(255)) {
     _controller = robot_ctrl;
     _userControlParameters = robot_ctrl->getUserControlParameters();
         }
@@ -50,21 +52,26 @@ class HardwareBridge {
                         const gamepad_lcmt* msg);
 
   void handleInterfaceLCM();
+  void handleHighCmdLCM();
   void handleControlParameter(const lcm::ReceiveBuffer* rbuf,
                               const std::string& chan,
                               const control_parameter_request_lcmt* msg);
 
+  /* Handle the high-level command sent from navigation stack/task planner*/
+  void handleHighCmd(const lcm::ReceiveBuffer *rbuf, const std::string &chan, const custom_cmd_lcmt *msg);
   void publishVisualizationLCM();
   void run_sbus();
 
  protected:
   PeriodicTaskManager taskManager;
   PrintTaskStatus statusTask;
+  HighCmdCustom _highlevelCommand;
   GamepadCommand _gamepadCommand;
   VisualizationData _visualizationData;
   CheetahVisualization _mainCheetahVisualization;
   lcm::LCM _interfaceLCM;
   lcm::LCM _visualizationLCM;
+  lcm::LCM _highCmdLCM;
   control_parameter_respones_lcmt _parameter_response_lcmt;
   SpiData _spiData;
   SpiCommand _spiCommand;
@@ -77,6 +84,7 @@ class HardwareBridge {
   RobotControlParameters _robotParams;
   u64 _iterations = 0;
   std::thread _interfaceLcmThread;
+  std::thread _highCmdLcmThread;
   volatile bool _interfaceLcmQuit = false;
   RobotController* _controller = nullptr;
   ControlParameters* _userControlParameters = nullptr;
