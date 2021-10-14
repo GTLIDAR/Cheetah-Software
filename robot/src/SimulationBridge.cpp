@@ -232,6 +232,7 @@ void SimulationBridge::runRobotControl() {
 
     _robotRunner->driverCommand =
         &_sharedMemory().simToRobot.gamepadCommand;
+    _robotRunner->HighlevelCmd = &_highlevelCommand;
     _robotRunner->spiData = &_sharedMemory().simToRobot.spiData;
     _robotRunner->tiBoardData = _sharedMemory().simToRobot.tiBoardData;
     // TODO: change to A1's struct

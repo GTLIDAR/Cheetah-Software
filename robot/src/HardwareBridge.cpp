@@ -566,6 +566,7 @@ void Cheetah3HardwareBridge::run() {
       new RobotRunner(_controller, &taskManager, _robotParams.controller_dt, "robot-control");
 
   _robotRunner->driverCommand = &_gamepadCommand;
+  _robotRunner->HighlevelCmd = &_highlevelCommand;
   _robotRunner->tiBoardData = _tiBoardData;
   _robotRunner->tiBoardCommand = _tiBoardCommand;
   _robotRunner->robotType = RobotType::CHEETAH_3;

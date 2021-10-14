@@ -39,6 +39,7 @@ class SimulationBridge {
   bool _firstControllerRun = true;
   PeriodicTaskManager* _fakeTaskManager = nullptr;
   RobotType _robot;
+  HighCmdCustom _highlevelCommand;
   RobotRunner_sim* _robotRunner = nullptr;
   SimulatorMode _simMode;
   SharedMemoryObject<SimulatorSyncronizedMessage> _sharedMemory;
