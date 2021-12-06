@@ -55,7 +55,12 @@ void sbus_packet_complete() {
       break;
 
     case SWITCH_MIDDLE: // recover
-      selected_mode = RC_mode::RECOVERY_STAND;
+      if(mode_selection_switch == SWITCH_MIDDLE){
+        selected_mode = RC_mode::AUTO;
+      }else{
+        selected_mode = RC_mode::RECOVERY_STAND;
+      }
+
       break;
 
     case SWITCH_DOWN: // run 

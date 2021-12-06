@@ -93,18 +93,6 @@ void ConvexMPCLocomotion::_SetupCommand(ControlFSMData<float> & data){
     x_vel_cmd = rc_cmd->v_des[0];
     y_vel_cmd = rc_cmd->v_des[1] * 0.5;
     _body_height += rc_cmd->height_variation * 0.08;
-  } else if (data.controlParameters->use_rc == 0 && data.controlParameters->auto_mode == 1) { // Autonomous mode
-      _yaw_turn_rate = data._desiredStateCommand->highCommand->rotateSpeed;
-      x_vel_cmd = fmin(fmax(data._desiredStateCommand->highCommand->forwardSpeed, -1.5), 1.5);
-      y_vel_cmd = fmin(fmax(data._desiredStateCommand->highCommand->sideSpeed, -1.0), 1.0) * 0.3;
-      _body_height += 0.08 * fmin(fmax(data._desiredStateCommand->highCommand->bodyHeight, -1.0), 1.0);
-      if(_body_height > 0.4){
-          _body_height = 0.4;
-      }
-      if(_body_height < 0.15){
-          _body_height = 0.15;
-      }
-      _footRaiseHeight += 0.14 * fmin(fmax(data._desiredStateCommand->highCommand->footRaiseHeight, 0.0), 1.0);
 
   } else if (data.controlParameters->use_rc == 0 && data.controlParameters->auto_mode == 0) {
     _yaw_turn_rate = data._desiredStateCommand->rightAnalogStick[0];
@@ -112,6 +100,20 @@ void ConvexMPCLocomotion::_SetupCommand(ControlFSMData<float> & data){
     y_vel_cmd = data._desiredStateCommand->leftAnalogStick[0] * 0.3;
     _body_height += 0.08 * fmin(fmax(data._desiredStateCommand->rightAnalogStick[1], -1.0), 1.0);
     _footRaiseHeight += 0.14 * fmin(fmax(data._desiredStateCommand->gamepadCommand->rightTriggerAnalog, 0.0), 1.0);
+
+  } else if (data.controlParameters->auto_mode == 1) { // Autonomous mode
+    _yaw_turn_rate = data._desiredStateCommand->highCommand->rotateSpeed;
+    x_vel_cmd = fmin(fmax(data._desiredStateCommand->highCommand->forwardSpeed, -1.5), 1.5);
+    y_vel_cmd = fmin(fmax(data._desiredStateCommand->highCommand->sideSpeed, -1.0), 1.0) * 0.3;
+    _body_height += 0.08 * fmin(fmax(data._desiredStateCommand->highCommand->bodyHeight, -1.0), 1.0);
+    if(_body_height > 0.4){
+        _body_height = 0.4;
+    }
+    if(_body_height < 0.15){
+        _body_height = 0.15;
+    }
+    _footRaiseHeight += 0.14 * fmin(fmax(data._desiredStateCommand->highCommand->footRaiseHeight, 0.0), 1.0);
+
   } else {
       std::cout << "Wrong mode selection in control panel!!!\n";
       assert(false);

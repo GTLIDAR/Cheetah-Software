@@ -29,6 +29,9 @@ namespace RC_mode{
   // Experiment Mode
   constexpr int TWO_LEG_STANCE_PRE = 20;
   constexpr int TWO_LEG_STANCE = 21;
+
+  // Autonomous Mode
+  constexpr int AUTO = 30;
 };
 
 void sbus_packet_complete();
