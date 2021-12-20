@@ -10,6 +10,9 @@ The third-party will contain *small* third party libraries that we have modified
 
 ## Configuration
 The A1 hardware interface requires installation of `unitree_legged_sdk` and `aliengo_sdk` (not used but has to be installed for future development).
+* [unitree_legged_sdk](https://github.com/unitreerobotics) (checkout to v3.2)
+* [aliengo_sdk](https://github.com/unitreerobotics) (master branch)
+
 Make sure the following exist in your `~/.bashrc` file or export them in terminal. `melodic`, `gazebo-8`, `~/catkin_ws`, `amd64` and the paths to `unitree_legged_sdk` should be replaced in your own case.
 ```
 export UNITREE_LEGGED_SDK_PATH=~/unitree_legged_sdk
@@ -18,10 +21,6 @@ export ALIENGO_SDK_PATH=~/aliengo_sdk
 export UNITREE_PLATFORM="amd64"
 ```
 
-See more details in:
-* [unitree_ros](https://github.com/unitreerobotics/unitree_ros)
-* [unitree_legged_sdk](https://github.com/unitreerobotics)
-* [aliengo_sdk](https://github.com/unitreerobotics)
 
 ## Build
 To build all code, follow the same procedures as original Cheetah Software:
