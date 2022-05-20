@@ -29,7 +29,7 @@ void DesiredStateCommand<T>::convertToStateCommands() {
   //T height_cmd(0.3);
 
   // THIS SHOULD be DISABLE Soon
-  if(parameters->use_rc) {
+  if(parameters->use_rc == 1 && parameters->auto_mode == 0) {
     if(rcCommand->mode == RC_mode::QP_STAND){ // Stand
       joystickLeft[0] = 0.; // Y
       joystickLeft[1] = 0.;
@@ -55,7 +55,13 @@ void DesiredStateCommand<T>::convertToStateCommands() {
       joystickLeft.setZero();
       joystickRight.setZero();
     }
-  } else if (parameters->use_rc == 0 && parameters->auto_mode == 1) { // Autonomous mode
+
+  } else if (parameters->use_rc == 0 && parameters->auto_mode == 0){ // No Remote Controller
+      joystickLeft = gamepadCommand->leftStickAnalog;
+      joystickRight = gamepadCommand->rightStickAnalog;
+      trigger_pressed = gamepadCommand->a;
+
+  } else if (parameters->auto_mode == 1) { // Autonomous mode
     if(highCommand->mode == 0){
         joystickLeft.setZero();
         joystickRight.setZero();
@@ -73,10 +79,6 @@ void DesiredStateCommand<T>::convertToStateCommands() {
 
     }
 
-  } else if (parameters->use_rc == 0 && parameters->auto_mode == 0){ // No Remote Controller
-    joystickLeft = gamepadCommand->leftStickAnalog;
-    joystickRight = gamepadCommand->rightStickAnalog;
-    trigger_pressed = gamepadCommand->a;
   } else {
     std::cout << "Wrong mode selection in control panel!!!\n";
     assert(false);

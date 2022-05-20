@@ -112,23 +112,41 @@ void ControlFSM<T>::runFSM() {
   // Check the robot state for safe operation
   operatingMode = safetyPreCheck();
 
-  if(data.controlParameters->use_rc == 1 && data.controlParameters->auto_mode == 0){
+  if(data.controlParameters->use_rc == 1){
     int rc_mode = data._desiredStateCommand->rcCommand->mode;
     if(rc_mode == RC_mode::RECOVERY_STAND){
+      data.controlParameters->auto_mode = 0;
       data.controlParameters->control_mode = K_RECOVERY_STAND;
 
     } else if(rc_mode == RC_mode::LOCOMOTION){
+      data.controlParameters->auto_mode = 0;
       data.controlParameters->control_mode = K_LOCOMOTION;
 
     } else if(rc_mode == RC_mode::QP_STAND){
+      data.controlParameters->auto_mode = 0;
       data.controlParameters->control_mode = K_BALANCE_STAND;
 
     } else if(rc_mode == RC_mode::VISION){
+      data.controlParameters->auto_mode = 0;
       data.controlParameters->control_mode = K_VISION;
 
     } else if(rc_mode == RC_mode::BACKFLIP || rc_mode == RC_mode::BACKFLIP_PRE){
+      data.controlParameters->auto_mode = 0;
       data.controlParameters->control_mode = K_BACKFLIP;
-   }
+
+    } else if(rc_mode == RC_mode::AUTO){
+      data.controlParameters->auto_mode = 1;
+      int auto_mode = data._desiredStateCommand->highCommand->mode;
+      if(auto_mode == 0) {
+        data.controlParameters->control_mode = K_RECOVERY_STAND;
+      } else if(auto_mode == 1){
+        data.controlParameters->control_mode = K_BALANCE_STAND;
+      } else if(auto_mode == 2){
+        data.controlParameters->control_mode = K_LOCOMOTION;
+      } else if(auto_mode == 9){
+        data.controlParameters->control_mode = K_PASSIVE;
+      }
+    }
       //data.controlParameters->control_mode = K_FRONTJUMP;
     //std::cout<< "control mode: "<<data.controlParameters->control_mode<<std::endl;
   }

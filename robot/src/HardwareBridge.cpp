@@ -51,6 +51,10 @@ void HardwareBridge::initCommon() {
     initError("_interfaceLCM failed to initialize\n", false);
   }
 
+  if (!_highCmdLCM.good()) {
+    initError("_highCmdLCM failed to initialize\n", false);
+  }
+
   printf("[HardwareBridge] Subscribe LCM\n");
   _interfaceLCM.subscribe("interface", &HardwareBridge::handleGamepadLCM, this);
   _interfaceLCM.subscribe("interface_request",
@@ -58,6 +62,18 @@ void HardwareBridge::initCommon() {
 
   printf("[HardwareBridge] Start interface LCM handler\n");
   _interfaceLcmThread = std::thread(&HardwareBridge::handleInterfaceLCM, this);
+
+  printf("[HardwareBridge] Subscribe high-level command lCM\n");
+  _highCmdLCM.subscribe("high_level_command", &HardwareBridge::handleHighCmd, this);
+
+  printf("[HardwareBridge] Start high-level command lCM handler\n");
+  _highCmdLcmThread = std::thread(&HardwareBridge::handleHighCmdLCM, this);
+}
+
+void HardwareBridge::handleHighCmd(const lcm::ReceiveBuffer *rbuf, const std::string &chan, const custom_cmd_lcmt *msg) {
+    (void)rbuf;
+    (void)chan;
+    _highlevelCommand.set(msg);
 }
 
 /*!
@@ -65,6 +81,10 @@ void HardwareBridge::initCommon() {
  */
 void HardwareBridge::handleInterfaceLCM() {
   while (!_interfaceLcmQuit) _interfaceLCM.handle();
+}
+
+void HardwareBridge::handleHighCmdLCM() {
+  while (!_interfaceLcmQuit) _highCmdLCM.handle();
 }
 
 /*!
@@ -292,6 +312,7 @@ void MiniCheetahHardwareBridge::run() {
       new RobotRunner(_controller, &taskManager, _robotParams.controller_dt, "robot-control");
 
   _robotRunner->driverCommand = &_gamepadCommand;
+  _robotRunner->HighlevelCmd = &_highlevelCommand;
   _robotRunner->spiData = &_spiData;
   _robotRunner->spiCommand = &_spiCommand;
   _robotRunner->robotType = RobotType::MINI_CHEETAH;
@@ -545,6 +566,7 @@ void Cheetah3HardwareBridge::run() {
       new RobotRunner(_controller, &taskManager, _robotParams.controller_dt, "robot-control");
 
   _robotRunner->driverCommand = &_gamepadCommand;
+  _robotRunner->HighlevelCmd = &_highlevelCommand;
   _robotRunner->tiBoardData = _tiBoardData;
   _robotRunner->tiBoardCommand = _tiBoardCommand;
   _robotRunner->robotType = RobotType::CHEETAH_3;
