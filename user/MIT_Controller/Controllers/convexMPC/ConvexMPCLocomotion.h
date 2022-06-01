@@ -6,6 +6,7 @@
 #include <SparseCMPC/SparseCMPC.h>
 #include "cppTypes.h"
 #include "Gait.h"
+//#include <Utilities/CalculateRollPitchYaw.h>
 
 #include <cstdio>
 
@@ -140,6 +141,7 @@ private:
   Vec3<float> f_ff[4];
   Vec4<float> swingTimes;
   FootSwingTrajectory<float> footSwingTrajectories[4];
+  Vec3<float> _fin_foot_loc[4];
   OffsetDurationGait trotting, bounding, pronking, jumping, galloping, standing, trotRunning, walking, walking2, pacing;
   MixedFrequncyGait random, random2;
   Mat3<float> Kp, Kd, Kp_stance, Kd_stance;
@@ -153,6 +155,8 @@ private:
   Vec3<float> world_position_desired;
   Vec3<float> rpy_int;
   Vec3<float> rpy_comp;
+  float _alpha_pitch = 0.08;
+  float _pitch_filtered;
   float x_comp_integral = 0;
   Vec3<float> pFoot[4];
   CMPC_Result<float> result;

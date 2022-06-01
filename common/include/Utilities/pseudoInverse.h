@@ -1,6 +1,10 @@
+#ifndef PSEUDOINVERSE
+#define PSEUDOINVERSE
+
 #include <stdio.h>
 #include <eigen3/Eigen/LU>
 #include <eigen3/Eigen/SVD>
+
 using namespace std;
 
 /*!
@@ -12,30 +16,37 @@ using namespace std;
 template <typename T>
 void pseudoInverse(DMat<T> const& matrix, double sigmaThreshold,
                    DMat<T>& invMatrix) {
-  if ((1 == matrix.rows()) && (1 == matrix.cols())) {
-    invMatrix.resize(1, 1);
-    if (matrix.coeff(0, 0) > sigmaThreshold) {
-      invMatrix.coeffRef(0, 0) = 1.0 / matrix.coeff(0, 0);
-    } else {
-      invMatrix.coeffRef(0, 0) = 0.0;
+    if ((1 == matrix.rows()) && (1 == matrix.cols())) {
+        invMatrix.resize(1, 1);
+        if (matrix.coeff(0, 0) > sigmaThreshold) {
+            invMatrix.coeffRef(0, 0) = 1.0 / matrix.coeff(0, 0);
+        } else {
+            invMatrix.coeffRef(0, 0) = 0.0;
+        }
+        return;
     }
-    return;
-  }
 
-  Eigen::JacobiSVD<DMat<T>> svd(matrix,
-                                Eigen::ComputeThinU | Eigen::ComputeThinV);
-  // not sure if we need to svd.sort()... probably not
-  int const nrows(svd.singularValues().rows());
-  DMat<T> invS;
-  invS = DMat<T>::Zero(nrows, nrows);
-  for (int ii(0); ii < nrows; ++ii) {
-    if (svd.singularValues().coeff(ii) > sigmaThreshold) {
-      invS.coeffRef(ii, ii) = 1.0 / svd.singularValues().coeff(ii);
-    } else {
-      // invS.coeffRef(ii, ii) = 1.0/ sigmaThreshold;
-      // printf("sigular value is too small: %f\n",
-      // svd.singularValues().coeff(ii));
+    Eigen::JacobiSVD<DMat<T>> svd(matrix,
+                                  Eigen::ComputeThinU | Eigen::ComputeThinV);
+    // not sure if we need to svd.sort()... probably not
+    int const nrows(svd.singularValues().rows());
+    DMat<T> invS;
+    invS = DMat<T>::Zero(nrows, nrows);
+    for (int ii(0); ii < nrows; ++ii) {
+        if (svd.singularValues().coeff(ii) > sigmaThreshold) {
+            invS.coeffRef(ii, ii) = 1.0 / svd.singularValues().coeff(ii);
+        } else {
+            // invS.coeffRef(ii, ii) = 1.0/ sigmaThreshold;
+            // printf("sigular value is too small: %f\n",
+            // svd.singularValues().coeff(ii));
+            // pretty_print(svd.singularValues(),std::cout,"singular values");
+            // pretty_print(svd.matrixV(),std::cout,"Matrix V");
+            // pretty_print(svd.matrixU(),std::cout,"Matrix U");
+            //
+
+        }
     }
-  }
-  invMatrix = svd.matrixV() * invS * svd.matrixU().transpose();
+    invMatrix = svd.matrixV() * invS * svd.matrixU().transpose();
 }
+
+#endif

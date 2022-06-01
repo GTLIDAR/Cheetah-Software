@@ -1,6 +1,7 @@
 #include <iostream>
 #include <Utilities/Timer.h>
 #include <Utilities/Utilities_print.h>
+#include <Utilities/CalculateRollPitchYaw.h>
 
 #include "ConvexMPCLocomotion.h"
 #include "convexMPC_interface.h"
@@ -50,8 +51,10 @@ ConvexMPCLocomotion::ConvexMPCLocomotion(float _dt, int _iterations_between_mpc,
   rpy_int[1] = 0;
   rpy_int[2] = 0;
 
-  for(int i = 0; i < 4; i++)
+  for(int i = 0; i < 4; i++) {
+    _fin_foot_loc[i].setZero();
     firstSwing[i] = true;
+  }
 
   initSparseMPC();
 
@@ -75,7 +78,7 @@ void ConvexMPCLocomotion::_SetupCommand(ControlFSMData<float> & data){
     _body_height = 0.29;
     _footRaiseHeight = 0.06;
   }else if(data._quadruped->_robotType == RobotType::A1){
-      _body_height = 0.29;
+      _body_height = 0.30;
       _footRaiseHeight = 0.06;
   }else if(data._quadruped->_robotType == RobotType::CHEETAH_3){
     _body_height = 0.45;
@@ -316,21 +319,33 @@ void ConvexMPCLocomotion::run(ControlFSMData<float>& data) {
     //Pf[2] = 0.0;
     footSwingTrajectories[i].setFinalPosition(Pf);
 
+    _fin_foot_loc[i] = Pf;
+
   }
 
   // calc gait
   iterationCounter++;
 
   // load LCM leg swing gains
-  Kp << 700, 0, 0,
-     0, 700, 0,
-     0, 0, 150;
+  if(data._quadruped->_robotType == RobotType::A1){
+      Kp << 300, 0, 0,
+              0, 400, 0,
+              0, 0, 400;
+
+      Kd << 8, 0, 0,
+              0, 8, 0,
+              0, 0, 8;
+  } else {
+      Kp << 700, 0, 0,
+              0, 700, 0,
+              0, 0, 150;
+
+      Kd << 7, 0, 0,
+              0, 7, 0,
+              0, 0, 7;
+  }
+
   Kp_stance = 0*Kp;
-
-
-  Kd << 7, 0, 0,
-     0, 7, 0,
-     0, 0, 7;
   Kd_stance = Kd;
   // gait
   Vec4<float> contactStates = gait->getContactState();
@@ -465,6 +480,20 @@ void ConvexMPCLocomotion::run(ControlFSMData<float>& data) {
       //Fr_des[foot] = -f_ff[foot];
     }
   }
+
+  // Compute RPY
+  Vec4<float> x, y, z;
+  for( int foot(0); foot<4; ++foot ){
+    x[foot] = _fin_foot_loc[foot][0];
+    y[foot] = _fin_foot_loc[foot][1];
+    z[foot] = _fin_foot_loc[foot][2];
+  }
+
+  float yaw = seResult.rpy[2];
+  Vec3<float> rpy = calculateRollPitchYaw(x, y, z, yaw);
+  _pitch_filtered = (1 - _alpha_pitch)*_pitch_filtered + _alpha_pitch * (-rpy[1]);
+  std::cout << "computed pitch is: " << _pitch_filtered << std::endl;
+//  _rpy_des[1] = _pitch_filtered;
 
   // se->set_contact_state(se_contactState); todo removed
   data._stateEstimator->setContactPhase(se_contactState);
