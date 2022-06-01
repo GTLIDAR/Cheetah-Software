@@ -22,11 +22,18 @@ void CheaterOrientationEstimator<T>::run() {
       this->_stateEstimatorData.cheaterState->orientation.template cast<T>();
   this->_stateEstimatorData.result->rBody = ori::quaternionToRotationMatrix(
       this->_stateEstimatorData.result->orientation);
-  this->_stateEstimatorData.result->omegaBody =
-      this->_stateEstimatorData.cheaterState->omegaBody.template cast<T>();
-  this->_stateEstimatorData.result->omegaWorld =
-      this->_stateEstimatorData.result->rBody.transpose() *
-      this->_stateEstimatorData.result->omegaBody;
+  if(!this->_stateEstimatorData.cheaterState->use_world_frame) {
+    this->_stateEstimatorData.result->omegaBody =
+            this->_stateEstimatorData.cheaterState->omegaBody.template cast<T>();
+    this->_stateEstimatorData.result->omegaWorld =
+            this->_stateEstimatorData.result->rBody.transpose() *
+            this->_stateEstimatorData.result->omegaBody;
+  } else {
+    this->_stateEstimatorData.result->omegaWorld =
+            this->_stateEstimatorData.cheaterState->omegaWorld.template cast<T>();
+    this->_stateEstimatorData.result->omegaBody =
+            this->_stateEstimatorData.result->rBody * this->_stateEstimatorData.cheaterState->omegaWorld.template cast<T>();
+  }
   this->_stateEstimatorData.result->rpy =
       ori::quatToRPY(this->_stateEstimatorData.result->orientation);
   this->_stateEstimatorData.result->aBody =

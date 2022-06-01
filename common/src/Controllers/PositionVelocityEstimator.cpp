@@ -192,9 +192,16 @@ template class LinearKFPositionVelocityEstimator<double>;
 template <typename T>
 void CheaterPositionVelocityEstimator<T>::run() {
   this->_stateEstimatorData.result->position = this->_stateEstimatorData.cheaterState->position.template cast<T>();
-  this->_stateEstimatorData.result->vWorld =
-      this->_stateEstimatorData.result->rBody.transpose().template cast<T>() * this->_stateEstimatorData.cheaterState->vBody.template cast<T>();
-  this->_stateEstimatorData.result->vBody = this->_stateEstimatorData.cheaterState->vBody.template cast<T>();
+  if(!this->_stateEstimatorData.cheaterState->use_world_frame) {
+    this->_stateEstimatorData.result->vBody = this->_stateEstimatorData.cheaterState->vBody.template cast<T>();
+    this->_stateEstimatorData.result->vWorld =
+            this->_stateEstimatorData.result->rBody.transpose().template cast<T>() * this->_stateEstimatorData.cheaterState->vBody.template cast<T>();
+  } else {
+    this->_stateEstimatorData.result->vWorld = this->_stateEstimatorData.cheaterState->vWorld.template cast<T>();
+    this->_stateEstimatorData.result->vBody = this->_stateEstimatorData.result->rBody *
+                                              this->_stateEstimatorData.cheaterState->vWorld.template cast<T>();
+
+  }
 }
 
 template class CheaterPositionVelocityEstimator<float>;
