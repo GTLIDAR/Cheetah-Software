@@ -8,6 +8,7 @@
 #define PROJECT_SIMULATIONDRIVER_H
 
 #include <thread>
+#include <lcm-cpp.hpp>
 
 #include "ControlParameters/RobotParameters.h"
 #include "RobotRunner_sim.h"
@@ -19,14 +20,16 @@
 class SimulationBridge {
  public:
   explicit SimulationBridge(RobotType robot, RobotController* robot_ctrl) : 
-    _robot(robot) {
+    _robot(robot),
+    _highCmdLCM(getLcmUrl(255)){
      _fakeTaskManager = new PeriodicTaskManager;
     _robotRunner = new RobotRunner_sim(robot_ctrl, _fakeTaskManager, 0, "robot-task");
     _userParams = robot_ctrl->getUserControlParameters();
-
  }
   void run();
   void handleControlParameters();
+  void handleHighCmd(const lcm::ReceiveBuffer *rbuf, const std::string &chan, const custom_cmd_lcmt *msg);
+  void handleHighCmdLCM();
   void runRobotControl();
   ~SimulationBridge() {
     delete _fakeTaskManager;
@@ -46,6 +49,9 @@ class SimulationBridge {
   RobotControlParameters _robotParams;
   ControlParameters* _userParams = nullptr;
   u64 _iterations = 0;
+  lcm::LCM _highCmdLCM;
+  std::thread _highCmdLcmThread;
+  volatile bool _interfaceLcmQuit = false;
 
   std::thread* sbus_thread;
 };
