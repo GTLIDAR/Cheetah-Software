@@ -68,7 +68,7 @@ class FSM_State_RecoveryStand : public FSM_State<T> {
   const int fold_ramp_iter = 400;
   const int fold_settle_iter = 700;
 
-  const int standup_ramp_iter = 250;
+  const int standup_ramp_iter = 500;
   const int standup_settle_iter = 250;
 
   void _RollOver(const int & iter);
