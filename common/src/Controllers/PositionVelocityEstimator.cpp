@@ -146,7 +146,9 @@ void LinearKFPositionVelocityEstimator<T>::run() {
 
     _ps.segment(i1, 3) = -p_f;
     _vs.segment(i1, 3) = (1.0f - trust) * v0 + trust * (-dp_f);
-    pzs(i) = (1.0f - trust) * (p0(2) + p_f(2));
+    //    pzs(i) = (1.0f - trust) * (p0(2) + p_f(2));
+    pzs(i) = trust * this->_stateEstimatorData.footHeights[i] +
+             (1.0f - trust) * (p0(2) + p_f(2));
   }
 
   Eigen::Matrix<T, 28, 1> y;

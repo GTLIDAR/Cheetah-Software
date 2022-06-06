@@ -61,6 +61,7 @@ ConvexMPCLocomotion::ConvexMPCLocomotion(float _dt, int _iterations_between_mpc,
    pBody_des.setZero();
    vBody_des.setZero();
    aBody_des.setZero();
+   coe_alpa.setZero();
 }
 
 void ConvexMPCLocomotion::initialize(){
@@ -78,8 +79,8 @@ void ConvexMPCLocomotion::_SetupCommand(ControlFSMData<float> & data){
     _body_height = 0.29;
     _footRaiseHeight = 0.06;
   }else if(data._quadruped->_robotType == RobotType::A1){
-      _body_height = 0.30;
-      _footRaiseHeight = 0.06;
+    _body_height = 0.29;
+    _footRaiseHeight = 0.10;
   }else if(data._quadruped->_robotType == RobotType::CHEETAH_3){
     _body_height = 0.45;
     _footRaiseHeight = 0.06;
@@ -115,7 +116,7 @@ void ConvexMPCLocomotion::_SetupCommand(ControlFSMData<float> & data){
     if(_body_height < 0.15){
         _body_height = 0.15;
     }
-    _footRaiseHeight += 0.14 * fmin(fmax(data._desiredStateCommand->highCommand->footRaiseHeight, 0.0), 1.0);
+    _footRaiseHeight += 0.15 * fmin(fmax(data._desiredStateCommand->highCommand->footRaiseHeight, 0.0), 1.0);
 
   } else {
       std::cout << "Wrong mode selection in control panel!!!\n";
@@ -126,7 +127,6 @@ void ConvexMPCLocomotion::_SetupCommand(ControlFSMData<float> & data){
 
   _yaw_des = data._stateEstimator->getResult().rpy[2] + dt * _yaw_turn_rate;
   _roll_des = 0.;
-  _pitch_des = 0.;
 
 }
 
@@ -230,6 +230,7 @@ void ConvexMPCLocomotion::run(ControlFSMData<float>& data) {
   rpy_comp[0] = v_robot[1] * rpy_int[0] * (gaitNumber!=8);  //turn off for pronking
 
 
+  // Location of the foot in the world locomotion frame
   for(int i = 0; i < 4; i++) {
     pFoot[i] = seResult.position + 
       seResult.rBody.transpose() * (data._quadruped->getHipLocation(i) + 
@@ -247,12 +248,16 @@ void ConvexMPCLocomotion::run(ControlFSMData<float>& data) {
     world_position_desired[1] = seResult.position[1];
     world_position_desired[2] = seResult.rpy[2];
 
+    _height_filtered = seResult.position[2];
+    _pitch_filtered = seResult.rpy[1];
+
     for(int i = 0; i < 4; i++)
     {
 
       footSwingTrajectories[i].setHeight(0.05);
       footSwingTrajectories[i].setInitialPosition(pFoot[i]);
       footSwingTrajectories[i].setFinalPosition(pFoot[i]);
+      _recent_foot_loc[i] = Vec3<float>::Zero();
 
     }
     firstRun = false;
@@ -315,7 +320,7 @@ void ConvexMPCLocomotion::run(ControlFSMData<float>& data) {
     pfy_rel = fminf(fmaxf(pfy_rel, -p_rel_max), p_rel_max);
     Pf[0] +=  pfx_rel;
     Pf[1] +=  pfy_rel;
-    Pf[2] = -0.003;
+    Pf[2] = coe_alpa(0)+coe_alpa(1)*Pf[0]+coe_alpa(2)*Pf[1]-0.003;
     //Pf[2] = 0.0;
     footSwingTrajectories[i].setFinalPosition(Pf);
 
@@ -436,11 +441,21 @@ void ConvexMPCLocomotion::run(ControlFSMData<float>& data) {
         data._legController->commands[foot].vDes = vDesLeg;
         data._legController->commands[foot].kpCartesian = Kp;
         data._legController->commands[foot].kdCartesian = Kd;
+
+        // Add gravity compensation
+        if(data._quadruped->_robotType == RobotType::A1){
+            if(foot == 0 or foot == 2) {
+                data._legController->commands[foot].tauFeedForward << -0.80, 0, 0;
+            }else{
+                data._legController->commands[foot].tauFeedForward << 0.80, 0, 0;
+            }
+        }
       }
     }
     else // foot is in stance
     {
       firstSwing[foot] = true;
+      _recent_foot_loc[foot] = pFoot[foot];
 
 #ifdef DRAW_DEBUG_SWINGS
       auto* actualSphere = data.visualizationData->addSphere();
@@ -464,9 +479,15 @@ void ConvexMPCLocomotion::run(ControlFSMData<float>& data) {
         data._legController->commands[foot].forceFeedForward = f_ff[foot];
         data._legController->commands[foot].kdJoint = Mat3<float>::Identity() * 0.2;
 
-        //      footSwingTrajectories[foot]->updateFF(hw_i->leg_controller->leg_datas[foot].q,
-        //                                          hw_i->leg_controller->leg_datas[foot].qd, 0); todo removed
-        // hw_i->leg_controller->leg_commands[foot].tau_ff += 0*footSwingController[foot]->getTauFF();
+        // Add gravity compensation
+        if(data._quadruped->_robotType == RobotType::A1){
+            if(foot == 0 or foot == 2) {
+                data._legController->commands[foot].tauFeedForward << -0.80, 0, 0;
+            }else{
+                data._legController->commands[foot].tauFeedForward << 0.80, 0, 0;
+            }
+        }
+
       }else{ // Stance foot damping
         data._legController->commands[foot].pDes = pDesLeg;
         data._legController->commands[foot].vDes = vDesLeg;
@@ -481,19 +502,34 @@ void ConvexMPCLocomotion::run(ControlFSMData<float>& data) {
     }
   }
 
-  // Compute RPY
+  Vec3<float> avgStanceFootPos(0.0, 0.0, 0.0);
+  for (int foot = 0; foot < 4; foot++) {
+    avgStanceFootPos += _fin_foot_loc[foot];
+  }
+  avgStanceFootPos=avgStanceFootPos/4;
+
+  // Compute RPY to adapt to the terrain
   Vec4<float> x, y, z;
   for( int foot(0); foot<4; ++foot ){
-    x[foot] = _fin_foot_loc[foot][0];
-    y[foot] = _fin_foot_loc[foot][1];
-    z[foot] = _fin_foot_loc[foot][2];
+    x[foot] = _recent_foot_loc[foot][0];
+    y[foot] = _recent_foot_loc[foot][1];
+    z[foot] = _recent_foot_loc[foot][2];
   }
 
   float yaw = seResult.rpy[2];
+  coe_alpa = calculateLeastSquaresPlane(x, y, z);
   Vec3<float> rpy = calculateRollPitchYaw(x, y, z, yaw);
   _pitch_filtered = (1 - _alpha_pitch)*_pitch_filtered + _alpha_pitch * (-rpy[1]);
   std::cout << "computed pitch is: " << _pitch_filtered << std::endl;
-//  _rpy_des[1] = _pitch_filtered;
+  std::cout << "current pitch is: " << data._stateEstimator->getResult().rpy[1] << std::endl;
+  _pitch_des = _pitch_filtered;
+
+  // Update Body height
+  float updated_height = coe_alpa[0] + coe_alpa[1]*avgStanceFootPos[0]
+                         + coe_alpa[2]*avgStanceFootPos[1] + _body_height;
+  _height_filtered = (1 - _alpha_height)*_height_filtered + _alpha_height*updated_height;
+//  std::cout << "updated height is: " << _height_filtered << std::endl;
+//  std::cout << "current height is: " << data._stateEstimator->getResult().position[2] << std::endl;
 
   // se->set_contact_state(se_contactState); todo removed
   data._stateEstimator->setContactPhase(se_contactState);
@@ -501,7 +537,7 @@ void ConvexMPCLocomotion::run(ControlFSMData<float>& data) {
   // Update For WBC
   pBody_des[0] = world_position_desired[0];
   pBody_des[1] = world_position_desired[1];
-  pBody_des[2] = _body_height;
+  pBody_des[2] = _height_filtered;
 
   vBody_des[0] = v_des_world[0];
   vBody_des[1] = v_des_world[1];
@@ -553,7 +589,7 @@ void ConvexMPCLocomotion::updateMPCIfNeeded(int *mpcTable, ControlFSMData<float>
         (float)stand_traj[5]/*+(float)stateCommand->data.stateDes[11]*/,
         (float)stand_traj[0]/*+(float)fsm->main_control_settings.p_des[0]*/,
         (float)stand_traj[1]/*+(float)fsm->main_control_settings.p_des[1]*/,
-        (float)_body_height/*fsm->main_control_settings.p_des[2]*/,
+        (float)_height_filtered/*fsm->main_control_settings.p_des[2]*/,
         0,0,0,0,0,0};
 
       for(int i = 0; i < horizonLength; i++)
@@ -577,12 +613,12 @@ void ConvexMPCLocomotion::updateMPCIfNeeded(int *mpcTable, ControlFSMData<float>
       world_position_desired[1] = yStart;
 
       float trajInitial[12] = {(float)rpy_comp[0],  // 0
-        (float)rpy_comp[1],    // 1
+        _pitch_des,    // 1
         _yaw_des,    // 2
         //yawStart,    // 2
         xStart,                                   // 3
         yStart,                                   // 4
-        (float)_body_height,      // 5
+        (float)_height_filtered,      // 5
         0,                                        // 6
         0,                                        // 7
         _yaw_turn_rate,  // 8
@@ -625,9 +661,11 @@ void ConvexMPCLocomotion::solveDenseMPC(int *mpcTable, ControlFSMData<float> &da
   auto seResult = data._stateEstimator->getResult();
 
   //float Q[12] = {0.25, 0.25, 10, 2, 2, 20, 0, 0, 0.3, 0.2, 0.2, 0.2};
-
-  float Q[12] = {0.25, 0.25, 10, 2, 2, 50, 0, 0, 0.3, 0.2, 0.2, 0.1};
-
+//  float Q[12] = {0.25, 0.25, 10, 2, 2, 50, 0, 0, 0.3, 0.2, 0.2, 0.1};
+  float Q[12] = {80.0, 80.0, 80.0,
+                 20.0, 20.0, 270.0,
+                 1.0, 1.0, 20.0,
+                 20.0, 20.0, 20.0};
   //float Q[12] = {0.25, 0.25, 10, 2, 2, 40, 0, 0, 0.3, 0.2, 0.2, 0.2};
   float yaw = seResult.rpy[2];
   float* weights = Q;

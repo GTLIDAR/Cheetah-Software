@@ -12,6 +12,8 @@
 
 #include "ControlParameters/RobotParameters.h"
 #include "Controllers/LegController.h"
+#include "Controllers/GaitScheduler.h"
+#include "Dynamics/Quadruped.h"
 #include "SimUtilities/IMUTypes.h"
 #include "SimUtilities/VisualizationData.h"
 #include "state_estimator_lcmt.hpp"
@@ -59,11 +61,15 @@ struct StateEstimate {
 template <typename T>
 struct StateEstimatorData {
   StateEstimate<T>* result;  // where to write the output to
-  VectorNavData* vectorNavData;
-  CheaterState<double>* cheaterState;
-  LegControllerData<T>* legControllerData;
   Vec4<T>* contactPhase;
-  RobotControlParameters* parameters;
+  Vec4<T> footHeights;
+  Vec12<T> contactForces;
+  LegControllerData<T>* legControllerData;
+
+  const VectorNavData* vectorNavData;
+  const CheaterState<double>* cheaterState;
+  const Quadruped<T>* robot;
+  const RobotControlParameters* parameters;
 };
 
 /*!
@@ -128,6 +134,87 @@ class StateEstimatorContainer {
   const StateEstimate<T>& getResult() { return *_data.result; }
   StateEstimate<T> * getResultHandle() { return _data.result; }
 
+  /**
+  * Position of the feet in the true world frame
+  */
+  Vec3<T> getFootPosWorld(int foot) {
+      return _data.result.position +
+             (_data.result.rBody.transpose()
+              * (_robot->getHipLocation(foot)
+                 + _data.legControllerData[foot]->p));
+  }
+
+
+  /**
+   * Position of the feet in the world frame with the
+   * CoM ground projection being the origin
+   */
+  Vec3<T> getFootPosCoMOrigin(int foot) {
+      Vec3<T> pz(0.0, 0.0, _data.result.position(2));
+      return pz + _data.result.rBody.transpose()
+                  * (_robot->getHipLocation(foot)
+                     + _data.legControllerData[foot]->p);
+  }
+
+  Vec3<T> getLocalFootPos(int foot){
+      Vec3<T> pz(0., 0., _data.result.position(2));
+      return pz + (_robot->getHipLocation(foot) + _data.legControllerData[foot]->p);
+  }
+
+
+  /**
+   * Vector from the CoM to the foot in the body frame
+   */
+  Vec3<T> getFootVector(int foot) {
+      return (_robot->getHipLocation(foot)
+              + _data.legControllerData[foot]->p);
+  }
+
+  /**
+   * Vector of the foot in the body frame
+   */
+  Vec3<T> getFootVelocity(int foot) {
+      return _data.legControllerData[foot]->v;
+  }
+
+  /**
+   * Position of the feet in the true world frame
+   */
+  Vec3<T> getStanceFootPosWorld(int foot) {
+      return lastStanceFootPos.col(foot);
+  }
+
+  /**
+   * Future footstep positions in the true world frame
+   */
+  Vec3<T> getFutureFootPosWorld(int foot) {
+      return futureStanceFootPos.col(foot);
+  }
+
+
+  /**
+   * Vector from the CoM to the foot in the body frame
+   */
+  Vec3<T> getAverageFootPosWorld() {
+      Vec3<T> aveFootPos(0.0, 0.0, 0.0);
+      for (int foot = 0; foot < _robot->NUM_FEET; foot++) {
+          aveFootPos += getFootPosWorld(foot);
+      }
+      return aveFootPos / _robot->NUM_FEET;
+  }
+
+
+  /**
+   * Vector from the CoM to the foot in the body frame
+   */
+  Vec3<T> getAverageStanceFootPosWorld() {
+      Vec3<T> aveFootPos(0.0, 0.0, 0.0);
+      for (int foot = 0; foot < _robot->NUM_FEET; foot++) {
+          aveFootPos += lastStanceFootPos.col(foot);
+      }
+      return aveFootPos / _robot->NUM_FEET;
+  }
+
   /*!
    * Set the contact phase
    */
@@ -188,6 +275,10 @@ class StateEstimatorContainer {
   StateEstimatorData<T> _data;
   std::vector<GenericEstimator<T>*> _estimators;
   Vec4<T> _phase;
+  Vec4<T> _footHeights;
+  Mat34<T> lastStanceFootPos;
+  Mat34<T> futureStanceFootPos;
+  Quadruped<T>* _robot;
 };
 
 #endif  // PROJECT_STATEESTIMATOR_H

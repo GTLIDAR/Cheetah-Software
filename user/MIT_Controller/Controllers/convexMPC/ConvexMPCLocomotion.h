@@ -113,7 +113,7 @@ private:
   float _yaw_des;
 
   float _roll_des;
-  float _pitch_des;
+  float _pitch_des = 0.;
 
   float _x_vel_des = 0.;
   float _y_vel_des = 0.;
@@ -142,6 +142,7 @@ private:
   Vec4<float> swingTimes;
   FootSwingTrajectory<float> footSwingTrajectories[4];
   Vec3<float> _fin_foot_loc[4];
+  Vec3<float> _recent_foot_loc[4];
   OffsetDurationGait trotting, bounding, pronking, jumping, galloping, standing, trotRunning, walking, walking2, pacing;
   MixedFrequncyGait random, random2;
   Mat3<float> Kp, Kd, Kp_stance, Kd_stance;
@@ -155,8 +156,15 @@ private:
   Vec3<float> world_position_desired;
   Vec3<float> rpy_int;
   Vec3<float> rpy_comp;
+
+  Vec3<float> coe_alpa;
   float _alpha_pitch = 0.08;
   float _pitch_filtered;
+  float _alpha_height = 0.08;
+  float _height_filtered;
+  //float _height_above_ground = 0.22;
+  float _height_offset = 0.;
+
   float x_comp_integral = 0;
   Vec3<float> pFoot[4];
   CMPC_Result<float> result;
