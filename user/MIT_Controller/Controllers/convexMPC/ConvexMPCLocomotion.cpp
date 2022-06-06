@@ -520,8 +520,8 @@ void ConvexMPCLocomotion::run(ControlFSMData<float>& data) {
   coe_alpa = calculateLeastSquaresPlane(x, y, z);
   Vec3<float> rpy = calculateRollPitchYaw(x, y, z, yaw);
   _pitch_filtered = (1 - _alpha_pitch)*_pitch_filtered + _alpha_pitch * (-rpy[1]);
-  std::cout << "computed pitch is: " << _pitch_filtered << std::endl;
-  std::cout << "current pitch is: " << data._stateEstimator->getResult().rpy[1] << std::endl;
+//  std::cout << "computed pitch is: " << _pitch_filtered << std::endl;
+//  std::cout << "current pitch is: " << data._stateEstimator->getResult().rpy[1] << std::endl;
   _pitch_des = _pitch_filtered;
 
   // Update Body height
@@ -546,7 +546,7 @@ void ConvexMPCLocomotion::run(ControlFSMData<float>& data) {
   aBody_des.setZero();
 
   pBody_RPY_des[0] = 0.;
-  pBody_RPY_des[1] = 0.; 
+  pBody_RPY_des[1] = _pitch_des;
   pBody_RPY_des[2] = _yaw_des;
 
   vBody_Ori_des[0] = 0.;
