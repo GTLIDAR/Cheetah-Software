@@ -17,6 +17,9 @@ void SimulationBridge::run() {
   // init shared memory:
   _sharedMemory.attach(DEVELOPMENT_SIMULATOR_SHARED_MEMORY_NAME);
   _sharedMemory().init();
+  _highCmdLCM.subscribe("high_level_command", &SimulationBridge::handleHighCmd, this);
+  printf("[A1HardwareBridge] Start high-level command lCM handler\n");
+  _highCmdLcmThread = std::thread(&SimulationBridge::handleHighCmdLCM, this);
 
   install_segfault_handler(_sharedMemory().robotToSim.errorMessage);
 
@@ -193,6 +196,16 @@ void SimulationBridge::handleControlParameters() {
     default:
       throw std::runtime_error("unhandled get/set");
   }
+}
+
+void SimulationBridge::handleHighCmd(const lcm::ReceiveBuffer *rbuf, const std::string &chan, const custom_cmd_lcmt *msg) {
+    (void)rbuf;
+    (void)chan;
+    _highlevelCommand.set(msg);
+}
+
+void SimulationBridge::handleHighCmdLCM() {
+    while (!_interfaceLcmQuit) _highCmdLCM.handle();
 }
 
 /*!
