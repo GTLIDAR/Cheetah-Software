@@ -11,6 +11,8 @@ The third-party will contain *small* third party libraries that we have modified
 ## Configuration
 The A1 hardware interface requires installation of `unitree_legged_sdk` and `aliengo_sdk` (not used but has to be installed for future development).
 Make sure the following exist in your `~/.bashrc` file or export them in terminal. `melodic`, `gazebo-8`, `~/catkin_ws`, `amd64` and the paths to `unitree_legged_sdk` should be replaced in your own case.
+* [unitree_legged_sdk](https://github.com/unitreerobotics) (checkout to v3.2)
+* [aliengo_sdk](https://github.com/unitreerobotics) (master branch)
 ```
 export UNITREE_LEGGED_SDK_PATH=~/unitree_legged_sdk
 export ALIENGO_SDK_PATH=~/aliengo_sdk
@@ -18,15 +20,11 @@ export ALIENGO_SDK_PATH=~/aliengo_sdk
 export UNITREE_PLATFORM="amd64"
 ```
 
-See more details in:
-* [unitree_ros](https://github.com/unitreerobotics/unitree_ros)
-* [unitree_legged_sdk](https://github.com/unitreerobotics)
-* [aliengo_sdk](https://github.com/unitreerobotics)
 
 ## Build
 To build all code, follow the same procedures as original Cheetah Software:
 ```
-git checkout TAMP_integrated
+git checkout mc_a1_nav
 mkdir build
 cd build
 cmake ..
@@ -121,7 +119,7 @@ s: simulation, r: robot
 * Press the `load` button on the right column and select the user control parameters for A1. Use `a1-mit-ctrl-user-parameters`
   for the MIT controller and `a1-jpos-user-parameters` for the joint PD controller.
 * On the left column, select `A1` and `Robot`
-* Click `Start` button to open the RobotInterface (make sure A1 is lying on the ground!!). This step will send all the necessary control parameters to the controller through LCM
+* Click `Start` button to open the RobotInterface (make sure A1 is lying on the ground!! Press L2+B after A1 stands up using its default controller). This step will send all the necessary control parameters to the controller through LCM
 * You should be able to see the state estimation result showing A1 lying on the ground. Otherwise, double check the 
   network setup.
 * Similar to the simulation, you will see the `Robot Control Parameters` in the middle column of the simulator.
@@ -133,8 +131,7 @@ s: simulation, r: robot
 * The other control modes are under development or reserved for other actions.
 
 6. Autonomous mode:
-* To enter the autonomous mode, change `auto_mode` from `0` to `1`. If you have made the robot stand in the gamepad mode, don't switch to autonomous
-  mode and reboot the robot instead, i.e. you can only change the operation mode at the beginning (can be improved though).
+* To enter the autonomous mode, change `auto_mode` from `0` to `1`.
 * Before receiving any customized high-level command from the perception PC, change the control
   mode from `0` to `6` to let the robot stand up.
 * Send customized high-level command from perception PC. So far the robot will switch between
